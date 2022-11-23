@@ -27,25 +27,27 @@ void ABoardSpace::BeginPlay()
 
 int ABoardSpace::AddNextSpace(ABoardSpace* newSpace)
 {
-	if (!newSpace)
+	if (!newSpace || NextTiles.Contains(newSpace))
 	{
 		return -1;
 	}
 
 	const int index = NextTiles.Add(newSpace);
+	newSpace->AddPreviousSpace(this);
 	UpdatePaths();
 	return index;
 }
 
 int ABoardSpace::AddPreviousSpace(ABoardSpace* previousSpace)
 {
-	if (!previousSpace)
+	if (!previousSpace || PreviousTiles.Contains(previousSpace))
 	{
 		return -1;
 	}
-
+	
 	const int index = PreviousTiles.Add(previousSpace);
 	UpdatePaths();
+	previousSpace->AddNextSpace(this);
 	return index;
 }
 
@@ -84,40 +86,41 @@ void ABoardSpace::Remove(bool bNotifyConnectingSpaces)
 {
 	if (bNotifyConnectingSpaces)
 	{
-		if(PreviousTiles.Num() != 0)
+		for (int i = 0; i < NextTiles.Num(); i++)
 		{
-			for (int i = 0; i < NextTiles.Num(); i++)
+			ABoardSpace* CurrentNextTile = NextTiles[i];
+			if (!CurrentNextTile)
+				break;
+			for (int j = 0; j < CurrentNextTile->PreviousTiles.Num(); j++)
 			{
-				ABoardSpace* CurrentNextTile = NextTiles[i];
-				if (!CurrentNextTile)
-					break;
-				for (int j = 0; j < CurrentNextTile->PreviousTiles.Num(); j++)
+				// Checking for the possibility that this is one of many spaces that lead to one tile
+				if (CurrentNextTile->PreviousTiles[j] == this)
 				{
-					if (CurrentNextTile->PreviousTiles[j] == this)
-					{
+					if(PreviousTiles.Num() > 0)
 						CurrentNextTile->PreviousTiles[j] = PreviousTiles[0];
-					}
+					else
+						CurrentNextTile->PreviousTiles.Remove(this);
 				}
 			}
 		}
-
-		if(NextTiles.Num() != 0)
+		for (int i = 0; i < PreviousTiles.Num(); i++)
 		{
-			for (int i = 0; i < PreviousTiles.Num(); i++)
-			{
-				ABoardSpace* CurrentNextTile = PreviousTiles[i];
-				if (!CurrentNextTile)
-					break;
+			ABoardSpace* CurrentNextTile = PreviousTiles[i];
+			if (!CurrentNextTile)
+				break;
 
-				for (int j = 0; j < CurrentNextTile->NextTiles.Num(); j++)
+			for (int j = 0; j < CurrentNextTile->NextTiles.Num(); j++)
+			{
+				if (CurrentNextTile->NextTiles[j] == this)
 				{
-					if (CurrentNextTile->NextTiles[j] == this)
-					{
+					if (NextTiles.Num() > 0)
 						CurrentNextTile->NextTiles[j] = NextTiles[0];
-					}
+					else
+						CurrentNextTile->NextTiles.Remove(this);
 				}
 			}
 		}
+	
 	}
 	Destroy();
 }
@@ -147,36 +150,55 @@ void ABoardSpace::ReplaceNext(ABoardSpace* replacement)
 
 void ABoardSpace::UpdatePaths()
 {
+	TArray<int> deletionIndices;
+	for(int i = 0; i < NextTiles.Num(); i++)
+	{
+		if (!NextTiles[i] || !NextTiles[i]->IsValidLowLevel())
+			deletionIndices.Add(i);
+	}
+	for(int i = 0 ; i < deletionIndices.Num(); i++)
+	{
+		NextTiles.RemoveAt(deletionIndices[i] - i);
+	}
+
 	// Update amount, else we update the positions
 	if (NextTiles.Num() != Paths.Num())
 	{
 		for(int i = 0; i < Paths.Num(); i++)
 		{
+			Paths[i]->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 			Paths[i]->DestroyComponent();
 		}
 		Paths.Empty();
 		for (int i = 0; i < NextTiles.Num(); ++i)
 		{
-			FString componentName = "Path_";
-			componentName.Append(FString::FromInt(i));
-			const FName name(componentName);
-
-			USplineComponent* splineComponent = NewObject<USplineComponent>(RootComponent, USplineComponent::StaticClass(), name);
-			if(splineComponent)
+			if(NextTiles[i])
 			{
-				splineComponent->RegisterComponent();
-				splineComponent->AttachToComponent(RootComponent.Get(), FAttachmentTransformRules::KeepRelativeTransform);
-				splineComponent->CreationMethod = EComponentCreationMethod::Instance;
-				splineComponent->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World, true);
+				FString componentName = "Path_";
+				componentName.Append(FString::FromInt(i));
+				const FName name(componentName);
+
+				USplineComponent* splineComponent = NewObject<USplineComponent>(RootComponent, USplineComponent::StaticClass(), name);
+				if(splineComponent)
+				{
+					splineComponent->RegisterComponent();
+					splineComponent->AttachToComponent(RootComponent.Get(), FAttachmentTransformRules::KeepRelativeTransform);
+					splineComponent->CreationMethod = EComponentCreationMethod::Instance;
+					splineComponent->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World, true);
+					Paths.Add(splineComponent);
+				}
 			}
 		}
 	}
 	else 
 	{
-		for(int i = 0; i < Paths.Num(); i++)
+		if(!Paths.IsEmpty())
 		{
-			if(NextTiles[i] != nullptr)
-				Paths[i]->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World);
+			for(int i = 0; i < Paths.Num(); i++)
+			{
+				if(NextTiles[i] != nullptr && Paths[i] != nullptr)
+					Paths[i]->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World);
+			}
 		}
 	}
 }
@@ -189,5 +211,29 @@ void ABoardSpace::PlayerLanded()
 void ABoardSpace::PlayerLeft()
 {
 
+}
+
+bool ABoardSpace::HasMultiplePaths(int direction) const
+{
+	if(direction > 0)
+	{
+		return (NextTiles.Num() > 1);
+	}
+	else
+	{
+		return (PreviousTiles.Num() > 1);
+	}
+}
+
+USplineComponent* ABoardSpace::GetPath(int index) const
+{
+	if(!(index >= Paths.Num()))
+	{
+		return Paths[index];
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 

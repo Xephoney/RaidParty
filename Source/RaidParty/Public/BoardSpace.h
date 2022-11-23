@@ -24,7 +24,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	int AddNextSpace(ABoardSpace* newSpace);
-	UFUNCTION(BlueprintCallable)
+	
 	int AddPreviousSpace(ABoardSpace* previousSpace);
 
 
@@ -38,9 +38,9 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TArray<ABoardSpace*> NextTiles;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ABoardSpace*> PreviousTiles;
 
 	UFUNCTION(BlueprintCallable)
@@ -70,6 +70,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PlayerLeft();
 
+	UFUNCTION(BlueprintCallable)
+	bool HasMultiplePaths(int direction) const;
+
+	UFUNCTION(BlueprintCallable)
+	USplineComponent* GetPath(int index) const;
 
 	
 };
