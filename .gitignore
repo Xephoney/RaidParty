@@ -73,6 +73,9 @@ Saved/*
 Intermediate/*
 Plugins/AdvancedSessions/AdvancedSessions/Intermediate/
 Plugins/AdvancedSessions/AdvancedSteamSessions/Intermediate/
-
+Plugins/Online/EOSShared/Binaries/
+Plugins/Online/EOSShared/Intermediate/
+Plugins/Online/OnlineSubsystemEOS/Binaries/
+Plugins/Online/OnlineSubsystemEOS/Intermediate/
 # Cache files for the editor to use
 DerivedDataCache/*
