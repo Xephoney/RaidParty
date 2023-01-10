@@ -51,6 +51,9 @@ Plugins/*/Binaries/*
 
 # Builds
 Build/*
+*/Build/*
+*/Intermediate/*
+
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
@@ -68,7 +71,8 @@ Saved/*
 
 # Compiled source files for the engine to use
 Intermediate/*
-Plugins/*/Intermediate/*
+Plugins/AdvancedSessions/AdvancedSessions/Intermediate/
+Plugins/AdvancedSessions/AdvancedSteamSessions/Intermediate/
 
 # Cache files for the editor to use
 DerivedDataCache/*
