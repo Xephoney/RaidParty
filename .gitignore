@@ -51,6 +51,8 @@ Plugins/*/Binaries/*
 
 # Builds
 Build/*
+Builds/*
+*/Builds/*
 */Build/*
 */Intermediate/*
 
