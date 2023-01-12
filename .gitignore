@@ -79,5 +79,7 @@ Plugins/Online/EOSShared/Binaries/
 Plugins/Online/EOSShared/Intermediate/
 Plugins/Online/OnlineSubsystemEOS/Binaries/
 Plugins/Online/OnlineSubsystemEOS/Intermediate/
+Plugins/HoudiniEngine/Binaries/
+Plugins/HoudiniEngine/Intermediate/
 # Cache files for the editor to use
 DerivedDataCache/*
