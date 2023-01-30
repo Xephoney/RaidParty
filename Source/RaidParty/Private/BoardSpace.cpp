@@ -129,8 +129,8 @@ void ABoardSpace::SetColor(int pathIndex, const FLinearColor Colour)
 {
 	if (pathIndex >= Paths.Num())
 		return;
-
-	Paths[pathIndex]->SetSelectedSplineSegmentColor(Colour);
+	if(IsValid(Paths[pathIndex]))
+		Paths[pathIndex]->SetSelectedSplineSegmentColor(Colour);
 }
 
 void ABoardSpace::ReplaceNext(ABoardSpace* replacement)
@@ -160,26 +160,33 @@ void ABoardSpace::UpdatePaths()
 	{
 		NextTiles.RemoveAt(deletionIndices[i] - i);
 	}
-
+	/*for(int i = 0; i < Paths.Num(); i++)
+	{
+		if(Paths[i] == nullptr)
+			delete Paths[i];
+	}*/
+	Paths.Empty();
 	// Update amount, else we update the positions
 	if (NextTiles.Num() != Paths.Num())
 	{
 		for(int i = 0; i < Paths.Num(); i++)
 		{
-			Paths[i]->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-			Paths[i]->DestroyComponent();
+			if(IsValid(Paths[i]))
+			{
+				Paths[i]->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+				Paths[i]->DestroyComponent();
+			}
 		}
 		Paths.Empty();
 		for (int i = 0; i < NextTiles.Num(); ++i)
 		{
-			if(NextTiles[i])
+			if(IsValid(NextTiles[i]))
 			{
 				FString componentName = "Path_";
 				componentName.Append(FString::FromInt(i));
 				const FName name(componentName);
 
-				USplineComponent* splineComponent = NewObject<USplineComponent>(RootComponent, USplineComponent::StaticClass(), name);
-				if(splineComponent)
+				if(USplineComponent* splineComponent = NewObject<USplineComponent>(RootComponent, USplineComponent::StaticClass(), name))
 				{
 					splineComponent->RegisterComponent();
 					splineComponent->AttachToComponent(RootComponent.Get(), FAttachmentTransformRules::KeepRelativeTransform);

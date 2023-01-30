@@ -12,7 +12,7 @@ ACoreLocalPlayerController::ACoreLocalPlayerController()
 void ACoreLocalPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	//auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 }
 

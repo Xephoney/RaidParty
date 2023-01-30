@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "D:/UE5/UE_5.1/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+//#include "D:/UE5/UE_5.1/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 
 #include "CoreLocalPlayerController.generated.h"
 
@@ -22,16 +22,16 @@ class RAIDPARTY_API ACoreLocalPlayerController : public APlayerController
 public:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Controls|Input Actions")
-	UInputAction* MovementAction {nullptr};
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Controls|Input Actions")
+	//UInputAction* MovementAction {nullptr};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Controls|Input Actions")
-	UInputAction* ConfirmAction {nullptr};
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Controls|Input Actions")
+	//UInputAction* ConfirmAction {nullptr};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controls|Input Actions")
-	UInputMappingContext* InputMapping {nullptr};
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controls|Input Actions")
+	//UInputMappingContext* InputMapping {nullptr};
 
-	void EnhancedMove(const FInputActionValue& value);
+	//void EnhancedMove(const FInputActionValue& value);
 
 protected:
 	virtual void OnPossess(APawn* aPawn) override;
