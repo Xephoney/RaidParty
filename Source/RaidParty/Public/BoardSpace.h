@@ -31,8 +31,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* SpaceMesh{ nullptr };
 
-	UPROPERTY(EditAnywhere)
-	TArray<USplineComponent*> Paths;
 	
 
 public:	
@@ -42,6 +40,8 @@ public:
 	TArray<ABoardSpace*> NextTiles;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ABoardSpace*> PreviousTiles;
+	UPROPERTY(EditAnywhere)
+		TArray<USplineComponent*> Paths;
 
 	UFUNCTION(BlueprintCallable)
 	TArray<ABoardSpace*>& GetNextSpaces();
@@ -61,7 +61,7 @@ public:
 	void SetColor(int pathIndex, const FLinearColor Colour);
 
 	UFUNCTION(BlueprintCallable)
-	void UpdatePaths();
+	void UpdatePaths(bool smoothPath = false);
 
 	//Gameplay-spesific functions
 	UFUNCTION(BlueprintCallable)

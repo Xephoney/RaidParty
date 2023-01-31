@@ -148,7 +148,7 @@ void ABoardSpace::ReplaceNext(ABoardSpace* replacement)
 	}
 }
 
-void ABoardSpace::UpdatePaths()
+void ABoardSpace::UpdatePaths(bool smoothPaths)
 {
 	TArray<int> deletionIndices;
 	for(int i = 0; i < NextTiles.Num(); i++)
@@ -193,6 +193,11 @@ void ABoardSpace::UpdatePaths()
 					splineComponent->CreationMethod = EComponentCreationMethod::Instance;
 					splineComponent->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World, true);
 					Paths.Add(splineComponent);
+					if (smoothPaths)
+					{
+						splineComponent->SetTangentAtSplinePoint(0, GetActorLocation() + GetActorForwardVector(), ESplineCoordinateSpace::World);
+						splineComponent->SetTangentAtSplinePoint(1, NextTiles[i]->GetActorLocation() + NextTiles[i]->GetActorForwardVector() * -10.f , ESplineCoordinateSpace::World);
+					}
 				}
 			}
 		}
