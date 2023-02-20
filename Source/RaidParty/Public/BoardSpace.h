@@ -27,12 +27,8 @@ protected:
 	
 	int AddPreviousSpace(ABoardSpace* previousSpace);
 
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* SpaceMesh{ nullptr };
-
-	
-
 public:	
 	virtual void Tick(float DeltaTime) override;
 
@@ -40,7 +36,7 @@ public:
 	TArray<ABoardSpace*> NextTiles;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ABoardSpace*> PreviousTiles;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TArray<USplineComponent*> Paths;
 
 	UFUNCTION(BlueprintCallable)

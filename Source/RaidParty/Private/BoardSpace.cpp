@@ -15,7 +15,7 @@ ABoardSpace::ABoardSpace()
 
 	SpaceMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = SpaceMesh;
-	UpdatePaths();
+	//UpdatePaths();
 }
 
 // Called when the game starts or when spawned
