@@ -7,7 +7,15 @@
 #include "GameFramework/Actor.h"
 #include "BoardSpace.generated.h"
 
-
+UENUM(BlueprintType)
+enum class SPACETYPE : uint8
+{
+	NORMAL = 0			UMETA(DisplayName = "NORMAL"),
+	BAD = 1				UMETA(DisplayName = "BAD"),
+	EVENT = 2			UMETA(DisplayName = "EVENT"),
+	SHRINE = 3			UMETA(DisplayName = "SHRINE"),
+	KEEP = 4			UMETA(DisplayName = "KEEP")
+};
 
 UCLASS()
 class RAIDPARTY_API ABoardSpace : public AActor
@@ -31,6 +39,8 @@ protected:
 	UStaticMeshComponent* SpaceMesh{ nullptr };
 public:	
 	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	SPACETYPE Type = SPACETYPE::NORMAL;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TArray<ABoardSpace*> NextTiles;

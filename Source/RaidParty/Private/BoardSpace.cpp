@@ -163,44 +163,21 @@ void ABoardSpace::UpdatePaths(bool smoothPaths)
 	
 	Paths.Empty();
 	// Update amount, else we update the positions
-	if (NextTiles.Num() != Paths.Num())
+	for (int i = 0; i < NextTiles.Num(); ++i)
 	{
-		for(int i = 0; i < Paths.Num(); i++)
+		if(IsValid(NextTiles[i]))
 		{
-			if(IsValid(Paths[i]))
-			{
-				Paths[i]->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-				Paths[i]->DestroyComponent();
-			}
-		}
-		Paths.Empty();
-		for (int i = 0; i < NextTiles.Num(); ++i)
-		{
-			if(IsValid(NextTiles[i]))
-			{
-				FString componentName = "Path_";
-				componentName.Append(FString::FromInt(i));
-				const FName name(componentName);
+			FString componentName = "Path_";
+			componentName.Append(FString::FromInt(i));
+			const FName name(componentName);
 
-				if(USplineComponent* splineComponent = NewObject<USplineComponent>(RootComponent, USplineComponent::StaticClass(), name))
-				{
-					splineComponent->RegisterComponent();
-					splineComponent->AttachToComponent(RootComponent.Get(), FAttachmentTransformRules::KeepRelativeTransform);
-					splineComponent->CreationMethod = EComponentCreationMethod::Instance;
-					splineComponent->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World, true);
-					Paths.Add(splineComponent);
-				}
-			}
-		}
-	}
-	else 
-	{
-		if(!Paths.IsEmpty())
-		{
-			for(int i = 0; i < Paths.Num(); i++)
+			if(USplineComponent* splineComponent = NewObject<USplineComponent>(RootComponent, USplineComponent::StaticClass(), name))
 			{
-				if(NextTiles[i] != nullptr && Paths[i] != nullptr)
-					Paths[i]->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World);
+				splineComponent->RegisterComponent();
+				splineComponent->AttachToComponent(RootComponent.Get(), FAttachmentTransformRules::KeepRelativeTransform);
+				splineComponent->CreationMethod = EComponentCreationMethod::Instance;
+				splineComponent->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World, true);
+				Paths.Add(splineComponent);
 			}
 		}
 	}
@@ -234,9 +211,6 @@ USplineComponent* ABoardSpace::GetPath(int index) const
 	{
 		return Paths[index];
 	}
-	else
-	{
-		return nullptr;
-	}
+	return nullptr;
 }
 
