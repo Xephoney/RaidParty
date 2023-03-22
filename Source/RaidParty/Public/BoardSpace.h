@@ -47,7 +47,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ABoardSpace*> PreviousTiles;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TArray<USplineComponent*> Paths;
+	TArray<USplineComponent*> Paths;
 
 	UFUNCTION(BlueprintCallable)
 	TArray<ABoardSpace*>& GetNextSpaces();

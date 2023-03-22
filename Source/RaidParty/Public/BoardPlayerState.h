@@ -25,7 +25,7 @@ class RAIDPARTY_API ABoardPlayerState : public APlayerState
 public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateState();
-
+	float dt;
 	
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
@@ -48,9 +48,9 @@ public:
 	uint8 TraderShrinePower {0	};
 	uint8 oldTrader = 5;
 
-	UPROPERTY(BlueprintReadWrite)
-	FColor Color{1,1,1,1};
-	FColor oldColor = FColor(0, 0, 0, 0);
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	FLinearColor Color{1,1,1,1};
+	FLinearColor oldColor = FLinearColor(0, 0, 0, 0);
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	uint8 Ranking{ 1 };

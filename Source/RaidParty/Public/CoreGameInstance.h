@@ -35,6 +35,9 @@ public:
 	UPROPERTY(BlueprintAssignable);
 	FOnTurnCounterDelegate OnTurnCounterChanged;
 
+	UPROPERTY(BlueprintReadWrite)
+	FString BoardSaveGameSlot {"DEBUG SAVE" };
+
 	UFUNCTION(BlueprintCallable)
 	void EndOfTurn()
 	{

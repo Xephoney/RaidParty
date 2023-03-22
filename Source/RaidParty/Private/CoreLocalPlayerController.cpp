@@ -3,6 +3,10 @@
 
 #include "CoreLocalPlayerController.h"
 
+#include "BoardPlayerState.h"
+#include "EnhancedInput/Public/InputMappingContext.h"
+#include "EnhancedInput/Public/EnhancedInputSubsystems.h"
+
 ACoreLocalPlayerController::ACoreLocalPlayerController()
 {
 	bAutoManageActiveCameraTarget = false;
@@ -12,8 +16,11 @@ ACoreLocalPlayerController::ACoreLocalPlayerController()
 void ACoreLocalPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	//auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-
+	SetShowMouseCursor(false);
+	State = GetPlayerState<ABoardPlayerState>();
+	if(!PlayerState)
+		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
+	
 }
 
 void ACoreLocalPlayerController::OnPossess(APawn* aPawn)
@@ -22,9 +29,23 @@ void ACoreLocalPlayerController::OnPossess(APawn* aPawn)
 	Super::OnPossess(aPawn);
 }
 
-void ACoreLocalPlayerController::OnUnPossess()
+void ACoreLocalPlayerController::SetupInputComponent()
 {
-	bAutoManageActiveCameraTarget = false;
-	Super::OnUnPossess();
+	Super::SetupInputComponent();
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	
+	Subsystem->ClearAllMappings();
+	Subsystem->AddMappingContext(InputMapping, 0);
+
 }
 
+void ACoreLocalPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if(IsValid(State))
+	{
+		State->dt = DeltaSeconds;
+		State->UpdateState();
+	}
+}

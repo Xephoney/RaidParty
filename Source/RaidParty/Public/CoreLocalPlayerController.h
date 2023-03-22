@@ -4,15 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-//#include "D:/UE5/UE_5.1/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 
 #include "CoreLocalPlayerController.generated.h"
 
 /**
  * 
  */
-class UInputAction;
-class UInputMappingContext;
 
 UCLASS()
 class RAIDPARTY_API ACoreLocalPlayerController : public APlayerController
@@ -22,19 +19,26 @@ class RAIDPARTY_API ACoreLocalPlayerController : public APlayerController
 public:
 	virtual void BeginPlay() override;
 
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Controls|Input Actions")
-	//UInputAction* MovementAction {nullptr};
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	class ABoardPlayerState* State{ nullptr };
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Controls|Input Actions")
-	//UInputAction* ConfirmAction {nullptr};
+	int32 PlayerIndex{ -1 };
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controls|Input Actions")
-	//UInputMappingContext* InputMapping {nullptr};
-
-	//void EnhancedMove(const FInputActionValue& value);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UInputMappingContext* InputMapping{ nullptr };
 
 protected:
 	virtual void OnPossess(APawn* aPawn) override;
-	virtual void OnUnPossess() override;
+	virtual void SetupInputComponent() override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsMyTurn {false};
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bSelectingPaths{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bWaitingForConfirmation{ false };
 
 };
