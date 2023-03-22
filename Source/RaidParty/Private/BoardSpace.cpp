@@ -2,9 +2,6 @@
 
 
 #include "BoardSpace.h"
-
-#include <string>
-
 #include "Components/SplineComponent.h"
 
 // Sets default values
