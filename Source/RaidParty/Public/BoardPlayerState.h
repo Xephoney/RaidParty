@@ -26,7 +26,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateState();
 	float dt;
-	
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	uint8 Coins {10};
@@ -55,6 +54,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	uint8 Ranking{ 1 };
 	uint8 oldRanking = 5;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	int32 BoardIndex ;
+
 
 	UPROPERTY(BlueprintAssignable)
 	FOnCoinsChangedDelegate OnCoinsChanged;

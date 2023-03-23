@@ -38,6 +38,10 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FString BoardSaveGameSlot {"DEBUG SAVE" };
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bGameStarted{ false };
+
+
 	UFUNCTION(BlueprintCallable)
 	void EndOfTurn()
 	{

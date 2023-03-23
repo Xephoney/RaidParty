@@ -52,6 +52,7 @@ protected:
 public:
 	UPROPERTY(BlueprintReadOnly)
 	FLinearColor PlayerColor;
+
 	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
 		class ABoardSpace* BoardSpace{ nullptr };
 
@@ -64,6 +65,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual FLinearColor SetColor(int index);
+
+	UFUNCTION(BlueprintCallable)
+	FLinearColor SetColorLinear(const FLinearColor& color);
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PawnFinishedMove();

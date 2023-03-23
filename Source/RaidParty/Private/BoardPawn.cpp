@@ -61,6 +61,17 @@ FLinearColor ABoardPawn::SetColor(int index)
 	return PlayerColor;
 }
 
+FLinearColor ABoardPawn::SetColorLinear(const FLinearColor& color)
+{
+	
+	UMaterialInstanceDynamic* Mat = UMaterialInstanceDynamic::Create(PawnMaterial, this);
+	PlayerColor = color;
+	Mat->SetVectorParameterValue("Color", PlayerColor);
+	PawnMesh->SetMaterial(0, Mat);
+	return PlayerColor;
+
+}
+
 void ABoardPawn::Move(int index)
 {
 	if (bIsMoving)

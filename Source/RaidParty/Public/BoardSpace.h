@@ -49,6 +49,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<USplineComponent*> Paths;
 
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 UniqueIndex {-1};
+
 	UFUNCTION(BlueprintCallable)
 	TArray<ABoardSpace*>& GetNextSpaces();
 	UFUNCTION(BlueprintCallable)
@@ -82,5 +86,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USplineComponent* GetPath(int index) const;
 
-	
+
+
 };
