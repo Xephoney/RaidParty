@@ -38,9 +38,14 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FString BoardSaveGameSlot {"DEBUG SAVE" };
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FString MinigameCompletedLevel { "LVL_MINIGAME_COMPLETE" };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TArray<FString> MinigameLevels;
+
 	UPROPERTY(BlueprintReadWrite)
 	bool bGameStarted{ false };
-
 
 	UFUNCTION(BlueprintCallable)
 	void EndOfTurn()
