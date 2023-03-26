@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	SPACETYPE Type = SPACETYPE::NORMAL;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bHaltPlayerOnPass{ false };
+
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TArray<ABoardSpace*> NextTiles;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

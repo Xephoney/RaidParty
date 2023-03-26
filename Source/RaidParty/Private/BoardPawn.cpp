@@ -4,6 +4,7 @@
 #include "BoardPawn.h"
 
 #include "BoardSpace.h"
+#include "CoreLocalPlayerController.h"
 #include "Components/SplineComponent.h"
 
 // Sets default values
@@ -18,6 +19,7 @@ ABoardPawn::ABoardPawn()
 void ABoardPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 // Called every frame
@@ -28,7 +30,6 @@ void ABoardPawn::Tick(float DeltaTime)
 	if (!bIsMoving || !CurrentSpline)
 		return;
 
-	const FTransform transform = CurrentSpline->GetTransformAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World, false);
 	SetActorLocation(CurrentSpline->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World));
 	SetActorRotation(CurrentSpline->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World));
 	
@@ -37,7 +38,16 @@ void ABoardPawn::Tick(float DeltaTime)
 	{
 		bIsMoving = false;
 		Distance = 0;
-		PawnFinishedMove();
+		//PawnFinishedMove();
+		PawnArrivedAtNewSpace();
+		if(IsValid(PlayerController))
+		{
+			PlayerController->PawnArrived(BoardSpace);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(12455125, 2.f, FColor::Red, FString("Invalid PlayerController!!"));
+		}
 	}
 
 }

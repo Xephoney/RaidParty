@@ -23,9 +23,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* PawnMesh{ nullptr };
 
-	UPROPERTY(EditAnywhere)
-	UStaticMesh* PawnMeshClass{ nullptr };
-
 	UPROPERTY(EditDefaultsOnly)
 	UMaterialInstance* PawnMaterial;
 
@@ -56,7 +53,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
 		class ABoardSpace* BoardSpace{ nullptr };
 
-
+	UPROPERTY(BlueprintReadWrite)
+	class ACoreLocalPlayerController* PlayerController{ nullptr };
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -73,7 +71,19 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PawnFinishedMove();
 
-	UFUNCTION(BlueprintCallable)
-	void Move(int index);
+	UFUNCTION(BlueprintImplementableEvent)
+	void PawnArrivedAtNewSpace();
 
+// SELECTING PATHS EVENTS
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayPaths(int32 remainingMoves);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatePaths(int32 index);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HidePaths();
+
+	UFUNCTION(BlueprintCallable)
+	void Move(int index = 0);
 };
