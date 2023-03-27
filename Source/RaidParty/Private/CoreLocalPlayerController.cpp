@@ -36,8 +36,8 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	}
 	MyRoll--;
 	State->BoardIndex = space->UniqueIndex;
-	GEngine->AddOnScreenDebugMessage(12455123, 2.f, FColor::Cyan, FString::FromInt(MyRoll));
-
+	//GEngine->AddOnScreenDebugMessage(12455123, 2.f, FColor::Cyan, FString::FromInt(MyRoll));
+	ArrivedAtSpace();
 	// My turn has ended, but we still need to process the last space
 	if(MyRoll == 0)
 	{

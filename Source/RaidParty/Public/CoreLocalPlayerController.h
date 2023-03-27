@@ -71,6 +71,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void FinishedMoving();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ArrivedAtSpace();
+
 	UFUNCTION(BlueprintCallable)
 	void RollDice();
 
