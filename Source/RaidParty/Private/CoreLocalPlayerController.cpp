@@ -37,7 +37,7 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	MyRoll--;
 	State->BoardIndex = space->UniqueIndex;
 	//GEngine->AddOnScreenDebugMessage(12455123, 2.f, FColor::Cyan, FString::FromInt(MyRoll));
-	ArrivedAtSpace();
+	ArrivedAtSpace(space);
 	// My turn has ended, but we still need to process the last space
 	if(MyRoll == 0)
 	{
@@ -63,20 +63,19 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 		ConfirmQueue.Enqueue(SelectedPathLogic);
 		return;
 	}
-	myPawn->Move();
-	/*if(space->bHaltPlayerOnPass)
+	
+	if(space->bHaltPlayerOnPass)
 	{
-		switch (space->Type)
-		{
-			case SPACETYPE::SHRINE:
-				
-				break;
-			case SPACETYPE::KEEP: 
+		PlayerHalted(space->Type);
+		return;
+	}
+	myPawn->Move();
 
-				break;
-			default: ;
-		}
-	}*/
+}
+
+void ACoreLocalPlayerController::ContinueMovement()
+{
+	myPawn->Move();
 }
 
 void ACoreLocalPlayerController::OnPossess(APawn* aPawn)

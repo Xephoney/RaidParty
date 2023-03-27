@@ -12,6 +12,7 @@
  * 
  */
 
+enum class SPACETYPE : uint8;
 UCLASS()
 class RAIDPARTY_API ACoreLocalPlayerController : public APlayerController
 {
@@ -47,12 +48,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PawnArrived(class ABoardSpace* space);
 
+	UFUNCTION(BlueprintCallable)
+		void ContinueMovement();
 
 protected:
 	virtual void OnPossess(APawn* aPawn) override;
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaSeconds) override;
 	void EndTurnOnSpace(class ABoardSpace* space);
+	
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsMyTurn {false};
 
@@ -61,7 +65,6 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bRolled{ false };
-
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bWaitingForConfirmation{ false };
@@ -72,7 +75,10 @@ protected:
 	void FinishedMoving();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ArrivedAtSpace();
+	void ArrivedAtSpace(ABoardSpace* space);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayerHalted(SPACETYPE Type);
 
 	UFUNCTION(BlueprintCallable)
 	void RollDice();
