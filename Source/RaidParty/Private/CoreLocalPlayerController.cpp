@@ -143,7 +143,6 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 	const bool Clicked = Value.Get<bool>();
 	if (!bRolled || !bIsMyTurn)
 		return;
-	GEngine->AddOnScreenDebugMessage(032132, 2.f, FColor::Green, FString("Confirm Pressed"));
 	if(Clicked)
 	{
 		TFunction<void()> Func;
