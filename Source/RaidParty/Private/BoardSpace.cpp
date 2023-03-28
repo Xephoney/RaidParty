@@ -148,6 +148,7 @@ void ABoardSpace::ReplaceNext(ABoardSpace* replacement)
 void ABoardSpace::UpdatePaths(bool smoothPaths)
 {
 	TArray<int> deletionIndices;
+	//Next Tiles
 	for(int i = 0; i < NextTiles.Num(); i++)
 	{
 		if (!NextTiles[i] || !NextTiles[i]->IsValidLowLevel())
@@ -157,7 +158,23 @@ void ABoardSpace::UpdatePaths(bool smoothPaths)
 	{
 		NextTiles.RemoveAt(deletionIndices[i] - i);
 	}
-	
+	deletionIndices.Empty();
+	//Previous Tiles
+	for (int i = 0; i < PreviousTiles.Num(); i++)
+	{
+		if (!PreviousTiles[i] || !PreviousTiles[i]->IsValidLowLevel())
+			deletionIndices.Add(i);
+	}
+	for (int i = 0; i < deletionIndices.Num(); i++)
+	{
+		PreviousTiles.RemoveAt(deletionIndices[i] - i);
+	}
+
+	for(const auto path : Paths)
+	{
+		if (IsValid(path))
+			path->DestroyComponent();
+	}
 	Paths.Empty();
 	// Update amount, else we update the positions
 	for (int i = 0; i < NextTiles.Num(); ++i)
@@ -174,6 +191,8 @@ void ABoardSpace::UpdatePaths(bool smoothPaths)
 				splineComponent->AttachToComponent(RootComponent.Get(), FAttachmentTransformRules::KeepRelativeTransform);
 				splineComponent->CreationMethod = EComponentCreationMethod::Instance;
 				splineComponent->SetLocationAtSplinePoint(1, NextTiles[i]->GetActorLocation(), ESplineCoordinateSpace::World, true);
+				splineComponent->SetTangentAtSplinePoint(0, GetActorForwardVector() * 250.f, ESplineCoordinateSpace::World, true);
+				splineComponent->SetTangentAtSplinePoint(1, NextTiles[i]->GetActorForwardVector() * 250.f, ESplineCoordinateSpace::World, true);
 				Paths.Add(splineComponent);
 			}
 		}

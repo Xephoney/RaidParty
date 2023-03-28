@@ -45,10 +45,11 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bHaltPlayerOnPass{ false };
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TArray<ABoardSpace*> NextTiles;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<ABoardSpace*> PreviousTiles;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<USplineComponent*> Paths;
 
