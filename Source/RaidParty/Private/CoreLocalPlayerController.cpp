@@ -44,7 +44,7 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 		bIsMyTurn = false;
 		myPawn->PawnFinishedMove();
 		EndTurnOnSpace(space);
-		FinishedMoving();
+		FinishedMoving(space->Type);
 		return; 
 	}
 
@@ -75,7 +75,8 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 
 void ACoreLocalPlayerController::ContinueMovement()
 {
-	myPawn->Move();
+	if (MyRoll > 0)
+		myPawn->Move();
 }
 
 void ACoreLocalPlayerController::OnPossess(APawn* aPawn)

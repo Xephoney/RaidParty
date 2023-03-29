@@ -72,7 +72,7 @@ protected:
 	TQueue<TFunction<void()>> ConfirmQueue;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void FinishedMoving();
+	void FinishedMoving(SPACETYPE Type);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ArrivedAtSpace(ABoardSpace* space);
