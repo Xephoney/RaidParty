@@ -22,6 +22,8 @@ class RAIDPARTY_API ACoreLocalPlayerController : public APlayerController
 	int32 CurrentPathIndex{ 0 };
 	int32 MaxPathIndex { 0 };
 
+	float elapsed = 0.f;
+
 public:
 	virtual void BeginPlay() override;
 
@@ -30,6 +32,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	class ABoardPawn* myPawn {nullptr};
+
+	UPROPERTY(BlueprintReadWrite)
+	class ABoardTurnCharacter* TurnCharacter{ nullptr };
 
 	int32 PlayerIndex{ -1 };
 
@@ -43,19 +48,32 @@ public:
 	class UInputAction* ConfirmAction{ nullptr };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	class UInputAction* ConfirmReleasedAction{ nullptr };
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	class UInputAction* CameraToggleAction{ nullptr };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
 	class UInputAction* PathSelectAction{ nullptr };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	class UInputAction* DirectionalAction{ nullptr };
+
 
 	UFUNCTION(BlueprintCallable)
 	void PawnArrived(class ABoardSpace* space);
 
 	UFUNCTION(BlueprintCallable)
-		void ContinueMovement();
+	void ContinueMovement();
+
+	UFUNCTION(BlueprintCallable)
+	void BeginTurn(class ABoardTurnCharacter* incharacter);
 
 protected:
 	virtual void OnPossess(APawn* aPawn) override;
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaSeconds) override;
-	void EndTurnOnSpace(class ABoardSpace* space);
 	
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsMyTurn {false};
@@ -65,6 +83,13 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bRolled{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bRolling{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bCameraMode{ false };
+
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bWaitingForConfirmation{ false };
@@ -80,15 +105,30 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHalted(SPACETYPE Type);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateRoll();
+
 	UFUNCTION(BlueprintCallable)
 	void RollDice();
 
+	
 	// Input-bound Functions
 	UFUNCTION()
 	void Confirm(const FInputActionValue& Value);
 
 	UFUNCTION()
+	void ConfirmReleased(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void CameraModeToggle(const FInputActionValue& Value);
+
+	UFUNCTION()
 	void SelectPath(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void JoystickInput(const FInputActionValue& Value);
+
+
 };
 
 

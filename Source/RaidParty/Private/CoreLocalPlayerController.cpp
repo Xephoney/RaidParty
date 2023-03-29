@@ -6,6 +6,7 @@
 #include "BoardPawn.h"
 #include "BoardPlayerState.h"
 #include "BoardSpace.h"
+#include "BoardTurnCharacter.h"
 #include "EnhancedInput/Public/InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
@@ -13,7 +14,6 @@
 ACoreLocalPlayerController::ACoreLocalPlayerController()
 {
 	bAutoManageActiveCameraTarget = false;
-	//bFindCameraComponentWhenViewTarget = false;
 }
 
 void ACoreLocalPlayerController::BeginPlay()
@@ -43,7 +43,6 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	{
 		bIsMyTurn = false;
 		myPawn->PawnFinishedMove();
-		EndTurnOnSpace(space);
 		FinishedMoving(space->Type);
 		return; 
 	}
@@ -90,13 +89,21 @@ void ACoreLocalPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-	auto input = Cast<UEnhancedInputComponent>(InputComponent);
+	const auto input = Cast<UEnhancedInputComponent>(InputComponent);
 	Subsystem->ClearAllMappings();
 	Subsystem->AddMappingContext(InputMapping, 0);
 	if (ConfirmAction)
 		input->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::Confirm);
 	if(PathSelectAction)
 		input->BindAction(PathSelectAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::SelectPath);
+	if (CameraToggleAction)
+		input->BindAction(CameraToggleAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::CameraModeToggle);
+	if (DirectionalAction)
+		input->BindAction(DirectionalAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::JoystickInput);
+	if (ConfirmReleasedAction)
+		input->BindAction(ConfirmReleasedAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::ConfirmReleased);
+
+
 }
 
 void ACoreLocalPlayerController::Tick(float DeltaSeconds)
@@ -106,21 +113,29 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 	{
 		State->dt = DeltaSeconds;
 		State->UpdateState();
-
 	}
-}
 
-void ACoreLocalPlayerController::EndTurnOnSpace(ABoardSpace* space)
-{
+	if(bIsMyTurn)
+	{
+		FString DebugLog = "PlayerController Debug Info(" + FString::FromInt(PlayerIndex) + " : \n";
+		DebugLog += "Select Paths | " + FString::FromInt(bSelectingPaths) + "\n";
+		DebugLog += "Rolled       | " + FString::FromInt(bRolled) + "\n";
+		DebugLog += "Camera Mode  | " + FString::FromInt(bCameraMode) + "\n";
+		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
 
+		elapsed += DeltaSeconds;
+		if(bRolling && elapsed > 0.05f)
+		{
+			MyRoll = FMath::RandRange(1, 10);
+			UpdateRoll();
+			elapsed = 0;
+		}
+	}
 }
 
 void ACoreLocalPlayerController::RollDice()
 {
 	bRolled = true;
-	const FString output = "Roll Complete (" + FString::FromInt(MyRoll) + ")";
-	GEngine->AddOnScreenDebugMessage(589566, 2.f, FColor::Green, output);
-
 	if(myPawn->BoardSpace->HasMultiplePaths(1))
 	{
 		bSelectingPaths = true;
@@ -139,17 +154,58 @@ void ACoreLocalPlayerController::RollDice()
 	myPawn->Move();
 }
 
+void ACoreLocalPlayerController::BeginTurn(ABoardTurnCharacter* incharacter)
+{
+	TurnCharacter = incharacter;
+	bIsMyTurn = true;
+	Possess(incharacter);
+	TurnCharacter->FollowTarget = myPawn;
+	TurnCharacter->bFreeCameraMode = false;
+}
+
 void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 {
-	const bool Clicked = Value.Get<bool>();
-	if (!bRolled || !bIsMyTurn)
+	if (!bIsMyTurn)
 		return;
+	const bool Clicked = Value.Get<bool>();
+
+	if (!bRolled )
+	{
+		bRolling = true;
+		MyRoll = FMath::RandRange(1, 10);
+		UpdateRoll();
+		return;
+	}
+
 	if(Clicked)
 	{
 		TFunction<void()> Func;
 		if(ConfirmQueue.Peek(Func))
 			Func();
 		ConfirmQueue.Pop();
+	}
+}
+
+void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
+{
+	
+	if(bIsMyTurn && !bRolled && !bSelectingPaths && bRolling )
+	{
+		bRolling = false;
+		bRolled = true;
+		UpdateRoll();
+		RollDice();
+		bCameraMode = false;
+		TurnCharacter->bFreeCameraMode = bCameraMode;
+	}
+}
+
+void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value)
+{
+	if(bIsMyTurn && Value.Get<bool>() == true)
+	{
+		bCameraMode = !bCameraMode;
+		TurnCharacter->bFreeCameraMode = bCameraMode;
 	}
 }
 
@@ -170,5 +226,15 @@ void ACoreLocalPlayerController::SelectPath(const FInputActionValue& Value)
 		CurrentPathIndex--;
 		myPawn->UpdatePaths(CurrentPathIndex);
 	}
-	
+}
+
+void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
+{
+	if(bIsMyTurn && bCameraMode && IsValid(TurnCharacter) && Value.Get<FVector2D>().Size() > 0.f)
+	{
+		const FVector2D input = Value.Get<FVector2D>();
+		const FString a = FString::SanitizeFloat(input.X) + " , " + FString::SanitizeFloat(input.Y);
+		GEngine->AddOnScreenDebugMessage(413287, 0.5f, FColor::Purple, a);
+		TurnCharacter->MoveCamera(input);
+	}
 }
