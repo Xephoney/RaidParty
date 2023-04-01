@@ -48,8 +48,13 @@ public:
 	class UInputAction* ConfirmAction{ nullptr };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	class UInputAction* CancelAction{ nullptr };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
 	class UInputAction* ConfirmReleasedAction{ nullptr };
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	class UInputAction* RollDiceAction{ nullptr };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
 	class UInputAction* CameraToggleAction{ nullptr };
@@ -88,6 +93,9 @@ protected:
 	bool bRolling{ false };
 
 	UPROPERTY(BlueprintReadWrite)
+	bool bRollMode { false };
+
+	UPROPERTY(BlueprintReadWrite)
 	bool bCameraMode{ false };
 
 
@@ -108,10 +116,11 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateRoll();
 
-	UFUNCTION(BlueprintCallable)
+	void RollDiceBegin();
+	void RollDiceHeld();
 	void RollDice();
 
-	
+	void CancelActivated();
 	// Input-bound Functions
 	UFUNCTION()
 	void Confirm(const FInputActionValue& Value);

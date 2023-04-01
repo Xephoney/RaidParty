@@ -102,6 +102,14 @@ void ACoreLocalPlayerController::SetupInputComponent()
 		input->BindAction(DirectionalAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::JoystickInput);
 	if (ConfirmReleasedAction)
 		input->BindAction(ConfirmReleasedAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::ConfirmReleased);
+	if (RollDiceAction)
+	{
+		input->BindAction(RollDiceAction, ETriggerEvent::Started, this, &ACoreLocalPlayerController::RollDiceBegin);
+		input->BindAction(RollDiceAction, ETriggerEvent::Completed, this, &ACoreLocalPlayerController::ConfirmReleased);
+		//input->BindAction(RollDiceAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::RollDiceHeld);
+	}
+	if (CancelAction)
+		input->BindAction(CancelAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::CancelActivated);
 
 
 }
@@ -117,10 +125,12 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 
 	if(bIsMyTurn)
 	{
-		FString DebugLog = "PlayerController Debug Info(" + FString::FromInt(PlayerIndex) + " : \n";
-		DebugLog += "Select Paths | " + FString::FromInt(bSelectingPaths) + "\n";
-		DebugLog += "Rolled       | " + FString::FromInt(bRolled) + "\n";
-		DebugLog += "Camera Mode  | " + FString::FromInt(bCameraMode) + "\n";
+		FString DebugLog = "PlayerController Debug Info(" + FString::FromInt(PlayerIndex) + ") \n";
+		DebugLog += "| Select Paths | " + FString::Printf(TEXT("%s\n"), bSelectingPaths ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolled       | " + FString::Printf(TEXT("%s\n"), bRolled ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolling      | " + FString::Printf(TEXT("%s\n"), bRolling ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Roll Mode    | " + FString::Printf(TEXT("%s\n"), bRollMode ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Camera Mode  | " + FString::Printf(TEXT("%s\n"), bCameraMode ? TEXT("true") : TEXT("false"));
 		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
 
 		elapsed += DeltaSeconds;
@@ -133,9 +143,28 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 	}
 }
 
+void ACoreLocalPlayerController::RollDiceBegin()
+{
+	if (bRolled || !bIsMyTurn || !bRollMode)
+		return;
+
+	bRolling = true;
+	bRollMode = true;
+	MyRoll = FMath::RandRange(1, 10);
+	UpdateRoll();
+}
+
+void ACoreLocalPlayerController::RollDiceHeld()
+{
+	bRolling = true;
+	MyRoll = FMath::RandRange(1, 10);
+}
+
 void ACoreLocalPlayerController::RollDice()
 {
 	bRolled = true;
+	bRolling = false;
+	UpdateRoll();
 	if(myPawn->BoardSpace->HasMultiplePaths(1))
 	{
 		bSelectingPaths = true;
@@ -154,6 +183,18 @@ void ACoreLocalPlayerController::RollDice()
 	myPawn->Move();
 }
 
+void ACoreLocalPlayerController::CancelActivated()
+{
+	if (bRollMode)
+		bRollMode = false;
+	if (bCameraMode)
+	{
+		bCameraMode = false;
+		TurnCharacter->bFreeCameraMode = false;
+	}
+
+}
+
 void ACoreLocalPlayerController::BeginTurn(ABoardTurnCharacter* incharacter)
 {
 	TurnCharacter = incharacter;
@@ -169,12 +210,9 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 		return;
 	const bool Clicked = Value.Get<bool>();
 
-	if (!bRolled )
+	if(!bRolled && Clicked && !bRollMode)
 	{
-		bRolling = true;
-		MyRoll = FMath::RandRange(1, 10);
-		UpdateRoll();
-		return;
+		bRollMode = true; 
 	}
 
 	if(Clicked)
@@ -188,15 +226,15 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 
 void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 {
-	
-	if(bIsMyTurn && !bRolled && !bSelectingPaths && bRolling )
+	if(bIsMyTurn && !bRolled && bRolling )
 	{
 		bRolling = false;
+		bRollMode = false;
+		bCameraMode = false;
+		TurnCharacter->bFreeCameraMode = bCameraMode;
 		bRolled = true;
 		UpdateRoll();
 		RollDice();
-		bCameraMode = false;
-		TurnCharacter->bFreeCameraMode = bCameraMode;
 	}
 }
 
