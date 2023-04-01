@@ -10,6 +10,7 @@
 #include "EnhancedInput/Public/InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "DrawDebugHelpers.h"
 
 ACoreLocalPlayerController::ACoreLocalPlayerController()
 {
@@ -49,17 +50,7 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 
 	if (space->HasMultiplePaths(1))
 	{
-		bSelectingPaths = true;
-		myPawn->DisplayPaths(MyRoll);
-		MaxPathIndex = space->NextTiles.Num();
-		const TFunction<void()> SelectedPathLogic = [this]()
-		{
-			bSelectingPaths = false;
-			myPawn->HidePaths();
-			myPawn->Move(CurrentPathIndex);
-			CurrentPathIndex = 0;
-		};
-		ConfirmQueue.Enqueue(SelectedPathLogic);
+		ActivatePathSelect(*space);
 		return;
 	}
 	
@@ -94,8 +85,12 @@ void ACoreLocalPlayerController::SetupInputComponent()
 	Subsystem->AddMappingContext(InputMapping, 0);
 	if (ConfirmAction)
 		input->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::Confirm);
-	if(PathSelectAction)
-		input->BindAction(PathSelectAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::SelectPath);
+
+	if(PathSelectHorizontalAction)
+		input->BindAction(PathSelectHorizontalAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::SelectPathHorizontal);
+	if (PathSelectVerticalAction)
+		input->BindAction(PathSelectVerticalAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::SelectPathVertical);
+
 	if (CameraToggleAction)
 		input->BindAction(CameraToggleAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::CameraModeToggle);
 	if (DirectionalAction)
@@ -105,8 +100,8 @@ void ACoreLocalPlayerController::SetupInputComponent()
 	if (RollDiceAction)
 	{
 		input->BindAction(RollDiceAction, ETriggerEvent::Started, this, &ACoreLocalPlayerController::RollDiceBegin);
+		input->BindAction(RollDiceAction, ETriggerEvent::Canceled, this, &ACoreLocalPlayerController::ConfirmReleased);
 		input->BindAction(RollDiceAction, ETriggerEvent::Completed, this, &ACoreLocalPlayerController::ConfirmReleased);
-		//input->BindAction(RollDiceAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::RollDiceHeld);
 	}
 	if (CancelAction)
 		input->BindAction(CancelAction, ETriggerEvent::Triggered, this, &ACoreLocalPlayerController::CancelActivated);
@@ -154,12 +149,6 @@ void ACoreLocalPlayerController::RollDiceBegin()
 	UpdateRoll();
 }
 
-void ACoreLocalPlayerController::RollDiceHeld()
-{
-	bRolling = true;
-	MyRoll = FMath::RandRange(1, 10);
-}
-
 void ACoreLocalPlayerController::RollDice()
 {
 	bRolled = true;
@@ -167,17 +156,7 @@ void ACoreLocalPlayerController::RollDice()
 	UpdateRoll();
 	if(myPawn->BoardSpace->HasMultiplePaths(1))
 	{
-		bSelectingPaths = true;
-		myPawn->DisplayPaths(MyRoll);
-		MaxPathIndex = myPawn->BoardSpace->NextTiles.Num();
-		const TFunction<void()> SelectedPathLogic = [this]()
-		{
-			bSelectingPaths = false;
-			myPawn->HidePaths();
-			myPawn->Move(CurrentPathIndex);
-			CurrentPathIndex = 0;
-		};
-		ConfirmQueue.Enqueue(SelectedPathLogic);
+		ActivatePathSelect(*myPawn->BoardSpace);
 		return;
 	}
 	myPawn->Move();
@@ -193,6 +172,34 @@ void ACoreLocalPlayerController::CancelActivated()
 		TurnCharacter->bFreeCameraMode = false;
 	}
 
+}
+
+void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
+{
+	bSelectingPaths = true;
+	myPawn->DisplayPaths(MyRoll);
+	CurrentPathIndex = 0;
+	MaxPathIndex = space.NextTiles.Num();
+
+	PathDirections.Empty();
+	for(const auto _space : space.NextTiles)
+	{
+		FVector dir = _space->GetActorLocation() - space.GetActorLocation();
+		dir.Z = 0;
+		dir.Normalize();
+		PathDirections.Add(FVector2D{dir.X, dir.Y});	
+	}
+
+	// Logic when A is Pressed to accept path
+	const TFunction<void()> SelectedPathLogic = [this]()
+	{
+		bSelectingPaths = false;
+		myPawn->HidePaths();
+		myPawn->Move(CurrentPathIndex);
+		CurrentPathIndex = 0;
+	};
+	ConfirmQueue.Enqueue(SelectedPathLogic);
+	return;
 }
 
 void ACoreLocalPlayerController::BeginTurn(ABoardTurnCharacter* incharacter)
@@ -247,11 +254,17 @@ void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value
 	}
 }
 
-void ACoreLocalPlayerController::SelectPath(const FInputActionValue& Value)
+void ACoreLocalPlayerController::SelectPathHorizontal(const FInputActionValue& Value)
 {
 	if(!bIsMyTurn || !bSelectingPaths)
 		return;
 
+	if (!bIsMyTurn)
+		return;
+	if (bSelectingPaths)
+		SelectPathFromDirection(FVector2D(0, Value.Get<float>()));
+
+	/*
 	//Left
 	if(Value.Get<float>() > 0.01f && CurrentPathIndex != MaxPathIndex-1)
 	{
@@ -264,15 +277,55 @@ void ACoreLocalPlayerController::SelectPath(const FInputActionValue& Value)
 		CurrentPathIndex--;
 		myPawn->UpdatePaths(CurrentPathIndex);
 	}
+	*/
+}
+
+void ACoreLocalPlayerController::SelectPathVertical(const FInputActionValue& Value)
+{
+	if (!bIsMyTurn)
+		return;
+	if(bSelectingPaths)
+		SelectPathFromDirection(FVector2D(Value.Get<float>(), 0));
+
 }
 
 void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 {
-	if(bIsMyTurn && bCameraMode && IsValid(TurnCharacter) && Value.Get<FVector2D>().Size() > 0.f)
-	{
-		const FVector2D input = Value.Get<FVector2D>();
-		const FString a = FString::SanitizeFloat(input.X) + " , " + FString::SanitizeFloat(input.Y);
-		GEngine->AddOnScreenDebugMessage(413287, 0.5f, FColor::Purple, a);
+	if (!bIsMyTurn || !IsValid(TurnCharacter))
+		return;
+
+	const FVector2D input = Value.Get<FVector2D>();
+	
+	if(bCameraMode && input.Size() > 0.f)
 		TurnCharacter->MoveCamera(input);
+	
+	else if(bSelectingPaths && input.Size() > 0.2f)
+	{
+		FVector2D normalizedInput = FVector2D(input.Y, input.X);
+		normalizedInput = normalizedInput.GetSafeNormal();
+		SelectPathFromDirection(normalizedInput);
+	}
+}
+
+void ACoreLocalPlayerController::SelectPathFromDirection(FVector2D Direction)
+{
+	Direction.Normalize();
+	TArray<float> dotProducts;
+	int BestIndex = 0;
+	float BestDot = -1.f;
+	for (int i = 0; i < PathDirections.Num(); i++)
+	{
+		const float dot = FVector2D::DotProduct(Direction, PathDirections[i]);
+		if (dot > BestDot)
+		{
+			BestDot = dot;
+			BestIndex = i;
+		}
+		dotProducts.Add(dot);
+	}
+	if (CurrentPathIndex != BestIndex)
+	{
+		CurrentPathIndex = BestIndex;
+		myPawn->UpdatePaths(BestIndex);
 	}
 }

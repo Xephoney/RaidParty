@@ -21,7 +21,7 @@ class RAIDPARTY_API ACoreLocalPlayerController : public APlayerController
 
 	int32 CurrentPathIndex{ 0 };
 	int32 MaxPathIndex { 0 };
-
+	TArray<FVector2D> PathDirections;
 	float elapsed = 0.f;
 
 public:
@@ -60,7 +60,11 @@ public:
 	class UInputAction* CameraToggleAction{ nullptr };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
-	class UInputAction* PathSelectAction{ nullptr };
+	class UInputAction* PathSelectHorizontalAction{ nullptr };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	class UInputAction* PathSelectVerticalAction{ nullptr };
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
 	class UInputAction* DirectionalAction{ nullptr };
@@ -117,10 +121,11 @@ protected:
 	void UpdateRoll();
 
 	void RollDiceBegin();
-	void RollDiceHeld();
 	void RollDice();
 
 	void CancelActivated();
+
+	void ActivatePathSelect(const ABoardSpace& space);
 	// Input-bound Functions
 	UFUNCTION()
 	void Confirm(const FInputActionValue& Value);
@@ -132,10 +137,13 @@ protected:
 	void CameraModeToggle(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void SelectPath(const FInputActionValue& Value);
+	void SelectPathHorizontal(const FInputActionValue& Value);
+	void SelectPathVertical(const FInputActionValue& Value);
 
 	UFUNCTION()
 	void JoystickInput(const FInputActionValue& Value);
+
+	void SelectPathFromDirection(FVector2D Direction);
 
 
 };
