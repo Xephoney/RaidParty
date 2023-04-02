@@ -262,22 +262,11 @@ void ACoreLocalPlayerController::SelectPathHorizontal(const FInputActionValue& V
 	if (!bIsMyTurn)
 		return;
 	if (bSelectingPaths)
+	{
 		SelectPathFromDirection(FVector2D(0, Value.Get<float>()));
+		return;
+	}
 
-	/*
-	//Left
-	if(Value.Get<float>() > 0.01f && CurrentPathIndex != MaxPathIndex-1)
-	{
-		CurrentPathIndex++;
-		myPawn->UpdatePaths(CurrentPathIndex);
-	}
-	//Right
-	else if(Value.Get<float>() < -0.01f && CurrentPathIndex != 0)
-	{
-		CurrentPathIndex--;
-		myPawn->UpdatePaths(CurrentPathIndex);
-	}
-	*/
 }
 
 void ACoreLocalPlayerController::SelectPathVertical(const FInputActionValue& Value)
@@ -310,6 +299,7 @@ void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 void ACoreLocalPlayerController::SelectPathFromDirection(FVector2D Direction)
 {
 	Direction.Normalize();
+	Direction = Direction.GetRotated(TurnCharacter->GetActorRotation().Euler().Z);
 	TArray<float> dotProducts;
 	int BestIndex = 0;
 	float BestDot = -1.f;
