@@ -37,9 +37,9 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	}
 	MyRoll--;
 	State->BoardIndex = space->UniqueIndex;
-	//GEngine->AddOnScreenDebugMessage(12455123, 2.f, FColor::Cyan, FString::FromInt(MyRoll));
+	
 	ArrivedAtSpace(space);
-	// My turn has ended, but we still need to process the last space
+	
 	if(MyRoll == 0)
 	{
 		bIsMyTurn = false;
@@ -86,6 +86,8 @@ void ACoreLocalPlayerController::ContinueMovement()
 {
 	if (MyRoll > 0)
 		myPawn->Move();
+	else
+		EndTurn();
 }
 
 void ACoreLocalPlayerController::OnPossess(APawn* aPawn)
@@ -140,12 +142,18 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 	if(bIsMyTurn)
 	{
 		FString DebugLog = "PlayerController Debug Info(" + FString::FromInt(PlayerIndex) + ") \n";
-		DebugLog += "| Select Paths | " + FString::Printf(TEXT("%s\n"), bSelectingPaths ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Rolled       | " + FString::Printf(TEXT("%s\n"), bRolled ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Rolling      | " + FString::Printf(TEXT("%s\n"), bRolling ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Roll Mode    | " + FString::Printf(TEXT("%s\n"), bRollMode ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Camera Mode  | " + FString::Printf(TEXT("%s\n"), bCameraMode ? TEXT("true") : TEXT("false"));
-		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
+		DebugLog += "| Select Paths  | " + FString::Printf(TEXT("%s\n"), bSelectingPaths ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Select Shrine | " + FString::Printf(TEXT("%s\n"), bSelectingShrine ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolled        | " + FString::Printf(TEXT("%s\n"), bRolled ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolling       | " + FString::Printf(TEXT("%s\n"), bRolling ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Roll Mode     | " + FString::Printf(TEXT("%s\n"), bRollMode ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Camera Mode   | " + FString::Printf(TEXT("%s\n"), bCameraMode ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Confirm Stack | [" + FString::FromInt(ConfirmStack.Num()) + "]\n";
+		DebugLog += "| Decline Stack | [" + FString::FromInt(DeclineStack.Num()) + "]\n";
+		if (bSelectingPaths || bSelectingShrine)
+			DebugLog += "| Current Index/Max Index " + FString::FromInt(CurrentPathIndex) + " / " + FString::FromInt(MaxPathIndex);
+
+		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Purple, DebugLog);
 
 		elapsed += DeltaSeconds;
 		if(bRolling && elapsed > 0.05f)
@@ -201,9 +209,10 @@ void ACoreLocalPlayerController::CancelActivated()
 void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 {
 	bSelectingPaths = true;
+	bSelectingShrine = false;
 	myPawn->DisplayPaths(MyRoll);
 	CurrentPathIndex = 0;
-	MaxPathIndex = space.NextTiles.Num();
+	MaxPathIndex = space.NextTiles.Num()-1;
 
 	PathDirections.Empty();
 	for(const auto _space : space.NextTiles)
@@ -220,9 +229,10 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 		bSelectingPaths = false;
 		myPawn->HidePaths();
 		myPawn->Move(CurrentPathIndex);
+		GEngine->AddOnScreenDebugMessage(590482094, 5.f, FColor::Red, FString("Confirmed PATH"));
 		CurrentPathIndex = 0;
 	};
-	ConfirmStack.Insert(SelectedPathLogic,0);
+	ConfirmStack.Add(SelectedPathLogic);
 	return;
 }
 
@@ -243,13 +253,14 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 
 	if(!bRolled && Clicked && !bRollMode)
 	{
-		bRollMode = true; 
+		bRollMode = true;
+		return;
 	}
 
 	if(Clicked && ConfirmStack.Num() > 0)
 	{
 		ConfirmStack[0]();
-		ConfirmStack.RemoveAt(0);
+		ConfirmStack.Empty();
 	}
 }
 
@@ -347,7 +358,7 @@ void ACoreLocalPlayerController::SelectPathFromDirection(FVector2D Direction)
 	if (CurrentPathIndex != BestIndex)
 	{
 		CurrentPathIndex = BestIndex;
-		myPawn->UpdatePaths(BestIndex);
+		myPawn->UpdatePaths(CurrentPathIndex);
 	}
 }
 
@@ -381,16 +392,20 @@ void ACoreLocalPlayerController::StartSelectingShrineOptions()
 		myPawn->HideShrineOptions();
 		ContinueMovement();
 		State->Coins -= 5;
-		DeclineStack.RemoveAt(0);
+		GEngine->AddOnScreenDebugMessage(590482094, 5.f, FColor::Red, FString("Confirmed SHRINE"));
+		ConfirmStack.Empty();
+		DeclineStack.Empty();
 	};
 	const TFunction<void()> DeclineShrineLogic = [this]()
 	{
 		bSelectingShrine = false;
 		myPawn->HideShrineOptions();
 		ContinueMovement();
-		ConfirmStack.RemoveAt(0);
+		GEngine->AddOnScreenDebugMessage(590482094, 5.f, FColor::Red, FString("Declined SHRINE"));
+		ConfirmStack.Empty();
+		DeclineStack.Empty();
 	};
-	ConfirmStack.Insert(ConfirmShrineLogic, 0);
-	DeclineStack.Insert(DeclineShrineLogic, 0);
+	ConfirmStack.Add(ConfirmShrineLogic);
+	DeclineStack.Add(DeclineShrineLogic);
 
 }

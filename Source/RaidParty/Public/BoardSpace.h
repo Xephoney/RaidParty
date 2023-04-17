@@ -14,7 +14,8 @@ enum class SPACETYPE : uint8
 	BAD = 1				UMETA(DisplayName = "BAD"),
 	EVENT = 2			UMETA(DisplayName = "EVENT"),
 	SHRINE = 3			UMETA(DisplayName = "SHRINE"),
-	KEEP = 4			UMETA(DisplayName = "KEEP")
+	KEEP = 4			UMETA(DisplayName = "KEEP"),
+	SHOP = 5			UMETA(DisplayName = "SHOP")
 };
 
 UCLASS()
@@ -52,7 +53,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<USplineComponent*> Paths;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	AActor* SpaceLinkObject{ nullptr };
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 UniqueIndex {-1};

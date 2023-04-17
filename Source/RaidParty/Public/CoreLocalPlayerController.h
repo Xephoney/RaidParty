@@ -125,6 +125,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateRoll();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void EndTurn();
+
 	void RollDiceBegin();
 	void RollDice();
 
