@@ -56,6 +56,25 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	
 	if(space->bHaltPlayerOnPass)
 	{
+		/*
+		switch (space->Type)
+		{
+		case SPACETYPE::NORMAL: 
+			ContinueMovement();
+			break;
+		case SPACETYPE::BAD: 
+			ContinueMovement();
+			break;
+		case SPACETYPE::EVENT: 
+			break;
+		case SPACETYPE::SHRINE: 
+			break;
+		case SPACETYPE::KEEP: 
+			break;
+		default: ;
+		}
+		*/
+
 		PlayerHalted(space->Type);
 		return;
 	}
@@ -164,6 +183,12 @@ void ACoreLocalPlayerController::RollDice()
 
 void ACoreLocalPlayerController::CancelActivated()
 {
+	if (DeclineStack.Num() > 0)
+	{
+		DeclineStack[0]();
+		DeclineStack.RemoveAt(0);
+	}
+
 	if (bRollMode)
 		bRollMode = false;
 	if (bCameraMode)
@@ -171,7 +196,6 @@ void ACoreLocalPlayerController::CancelActivated()
 		bCameraMode = false;
 		TurnCharacter->bFreeCameraMode = false;
 	}
-
 }
 
 void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
@@ -198,7 +222,7 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 		myPawn->Move(CurrentPathIndex);
 		CurrentPathIndex = 0;
 	};
-	ConfirmQueue.Enqueue(SelectedPathLogic);
+	ConfirmStack.Insert(SelectedPathLogic,0);
 	return;
 }
 
@@ -222,12 +246,10 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 		bRollMode = true; 
 	}
 
-	if(Clicked)
+	if(Clicked && ConfirmStack.Num() > 0)
 	{
-		TFunction<void()> Func;
-		if(ConfirmQueue.Peek(Func))
-			Func();
-		ConfirmQueue.Pop();
+		ConfirmStack[0]();
+		ConfirmStack.RemoveAt(0);
 	}
 }
 
@@ -247,7 +269,7 @@ void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 
 void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value)
 {
-	if(bIsMyTurn && Value.Get<bool>() == true)
+	if(bIsMyTurn && !bSelectingShrine && Value.Get<bool>() == true)
 	{
 		bCameraMode = !bCameraMode;
 		TurnCharacter->bFreeCameraMode = bCameraMode;
@@ -256,14 +278,17 @@ void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value
 
 void ACoreLocalPlayerController::SelectPathHorizontal(const FInputActionValue& Value)
 {
-	if(!bIsMyTurn || !bSelectingPaths)
+	if(!bIsMyTurn)
 		return;
 
-	if (!bIsMyTurn)
-		return;
 	if (bSelectingPaths)
 	{
 		SelectPathFromDirection(FVector2D(0, Value.Get<float>()));
+		return;
+	}
+	if(bSelectingShrine)
+	{
+		SelectShrineFromDirection(FVector2D(Value.Get<float>(), 0));
 		return;
 	}
 
@@ -285,14 +310,20 @@ void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 
 	const FVector2D input = Value.Get<FVector2D>();
 	
-	if(bCameraMode && input.Size() > 0.f)
+	if (bCameraMode && input.Size() > 0.f)
 		TurnCharacter->MoveCamera(input);
-	
-	else if(bSelectingPaths && input.Size() > 0.2f)
+
+	else if (bSelectingPaths && input.Size() > 0.2f)
 	{
 		FVector2D normalizedInput = FVector2D(input.Y, input.X);
 		normalizedInput = normalizedInput.GetSafeNormal();
 		SelectPathFromDirection(normalizedInput);
+	}
+	else if (bSelectingShrine && input.Size() > 0.2f)
+	{
+		FVector2D normalizedInput = FVector2D(input.X, input.Y);
+		normalizedInput = normalizedInput.GetSafeNormal();
+		SelectShrineFromDirection(normalizedInput);
 	}
 }
 
@@ -318,4 +349,48 @@ void ACoreLocalPlayerController::SelectPathFromDirection(FVector2D Direction)
 		CurrentPathIndex = BestIndex;
 		myPawn->UpdatePaths(BestIndex);
 	}
+}
+
+void ACoreLocalPlayerController::SelectShrineFromDirection(FVector2D Direction)
+{
+	if (Direction.X > 0.1f && CurrentPathIndex < MaxPathIndex)
+	{
+		CurrentPathIndex += 1;
+	}
+	else if( Direction.X < -0.1f && CurrentPathIndex > 0)
+	{
+		CurrentPathIndex -= 1;
+	}
+
+	myPawn->UpdateShrineOptions(CurrentPathIndex);
+}
+
+void ACoreLocalPlayerController::StartSelectingShrineOptions()
+{
+	if (!bIsMyTurn)
+		return;
+
+	bSelectingShrine = true;
+	CurrentPathIndex = 1;
+	MaxPathIndex = 2;
+	myPawn->DisplayShrineOptions();
+
+	const TFunction<void()> ConfirmShrineLogic = [this]()
+	{
+		bSelectingShrine = false;
+		myPawn->HideShrineOptions();
+		ContinueMovement();
+		State->Coins -= 5;
+		DeclineStack.RemoveAt(0);
+	};
+	const TFunction<void()> DeclineShrineLogic = [this]()
+	{
+		bSelectingShrine = false;
+		myPawn->HideShrineOptions();
+		ContinueMovement();
+		ConfirmStack.RemoveAt(0);
+	};
+	ConfirmStack.Insert(ConfirmShrineLogic, 0);
+	DeclineStack.Insert(DeclineShrineLogic, 0);
+
 }

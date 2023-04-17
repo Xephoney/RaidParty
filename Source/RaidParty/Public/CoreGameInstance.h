@@ -12,6 +12,25 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTurnCounterDelegate);
 
+USTRUCT(BlueprintType)
+struct FMinigamePlayerResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 PlayerIndex;
+	UPROPERTY(BlueprintReadWrite)
+	int32 Ranking;
+	UPROPERTY(BlueprintReadWrite)
+	int32 PriceMoney;
+	FMinigamePlayerResult() : PlayerIndex(-1), Ranking(-1), PriceMoney(-1){}
+
+	FMinigamePlayerResult(int32 index, int32 Rank, int32 Price) : PlayerIndex(index), Ranking(Rank), PriceMoney(Price)
+	{
+
+	};
+
+};
 
 UCLASS()
 class RAIDPARTY_API UCoreGameInstance : public UGameInstance
@@ -43,6 +62,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TArray<FString> MinigameLevels;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TArray<FMinigamePlayerResult> MinigameResult;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bGameStarted{ false };

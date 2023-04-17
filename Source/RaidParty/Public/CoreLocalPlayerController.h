@@ -91,6 +91,10 @@ protected:
 	bool bSelectingPaths{ false };
 
 	UPROPERTY(BlueprintReadWrite)
+	bool bSelectingShrine{ false };
+
+
+	UPROPERTY(BlueprintReadWrite)
 	bool bRolled{ false };
 
 	UPROPERTY(BlueprintReadWrite)
@@ -106,8 +110,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bWaitingForConfirmation{ false };
 
-	TQueue<TFunction<void()>> ConfirmQueue;
-
+	TArray<TFunction<void()>> ConfirmStack;
+	TArray<TFunction<void()>> DeclineStack;
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void FinishedMoving(SPACETYPE Type);
 
@@ -144,7 +149,9 @@ protected:
 	void JoystickInput(const FInputActionValue& Value);
 
 	void SelectPathFromDirection(FVector2D Direction);
-
+	void SelectShrineFromDirection(FVector2D Direction);
+	UFUNCTION(BlueprintCallable)
+	void StartSelectingShrineOptions();
 
 };
 
