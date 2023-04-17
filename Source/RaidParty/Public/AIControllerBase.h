@@ -25,7 +25,9 @@ public:
 	UPROPERTY(BluePrintReadOnly)
 		EInputEnum DirectionalInput=EInputEnum::IE_Up; // Same default as players
 	UPROPERTY(BlueprintReadWrite)
-		int InputIterator;
+		int InputIterator=0;
+	UPROPERTY(BlueprintReadOnly)
+		bool bLastInput = false;
 
 	UFUNCTION(BlueprintCallable)
 		void InputNextTarget();
