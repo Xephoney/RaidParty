@@ -12,24 +12,46 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTurnCounterDelegate);
 
+
+USTRUCT(BlueprintType)
+struct FMinigamePlayer
+{
+	GENERATED_BODY()
+
+	FMinigamePlayer(int32 ControllerIndex, float PlayerScore)
+		: PlayerIndex(ControllerIndex), Score(PlayerScore)
+	{
+
+	};
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 PlayerIndex {-1};
+
+	UPROPERTY(BlueprintReadWrite)
+	float Score{ 0.f };
+};
+
 USTRUCT(BlueprintType)
 struct FMinigamePlayerResult
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite)
-	int32 PlayerIndex;
-	UPROPERTY(BlueprintReadWrite)
-	int32 Ranking;
-	UPROPERTY(BlueprintReadWrite)
-	int32 PriceMoney;
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	int32 PlayerIndex {-21};
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	int32 Ranking {-231};
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	int32 PriceMoney{-321321452};
+
 	FMinigamePlayerResult() : PlayerIndex(-1), Ranking(-1), PriceMoney(-1){}
 
-	FMinigamePlayerResult(int32 index, int32 Rank, int32 Price) : PlayerIndex(index), Ranking(Rank), PriceMoney(Price)
+	FMinigamePlayerResult(int32 ControllerIndex, int32 Rank, int32 Price)
+		: PlayerIndex(ControllerIndex), Ranking(Rank), PriceMoney(Price)
 	{
 
 	};
-
 };
 
 UCLASS()
@@ -66,13 +88,23 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TArray<FMinigamePlayerResult> MinigameResult;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bGameStarted{ false };
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	bool bTutorialCompleted { false };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bLoadedFromMinigame{ false };
+	
 	UFUNCTION(BlueprintCallable)
 	void EndOfTurn()
 	{
 		TurnCounter++;
 		OnTurnCounterChanged.Broadcast();
 	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<FMinigamePlayerResult> SortResult(TArray<FMinigamePlayer> MinigameParticipants);
+
 };
