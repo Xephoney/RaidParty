@@ -84,6 +84,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void HidePaths();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayShrineOptions();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateShrineOptions(int Selected);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideShrineOptions();
+
+
 	UFUNCTION(BlueprintCallable)
 	void Move(int index = 0);
 };
