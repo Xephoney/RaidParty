@@ -18,6 +18,8 @@ public:
 		int Points=0;
 	UPROPERTY(BlueprintReadOnly)
 		int PlayerNum;
+
+	AAIControllerBase();
 public:
 	// Drinking Game //
 	UPROPERTY(BluePrintReadWrite)
@@ -35,5 +37,21 @@ public:
 		void SetTargetInputQueue(TArray<EInputEnum> inArray) 
 			{ TargetInputQueue = inArray; }
 
-};
+public:
+	// Hand in mouth //
+	UPROPERTY(BlueprintReadWrite)
+		bool bBiteHappening = false;
+	UPROPERTY(BlueprintReadWrite)
+		bool bBiteHappened = false;
+	UPROPERTY(BlueprintReadWrite)
+		bool bDead = false;
+	UPROPERTY(BlueprintReadWrite)
+		bool bHandInMouth = false;
+	UPROPERTY(BlueprintReadWrite)
+		float BraveryPercentage = 5.f; // How big of a chance that the AI will keep it's hand in the mouth when a bit might happen.
+	UPROPERTY(BlueprintReadOnly)
+		float MaxReactionTime = 1.f; // The maximum amount of time it takes for the AI to decide if it will keep it's hand in the mouth.
 
+	UFUNCTION(BlueprintCallable)
+		void BraveryCheck();
+};
