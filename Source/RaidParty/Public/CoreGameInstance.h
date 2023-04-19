@@ -18,11 +18,12 @@ struct FMinigamePlayer
 {
 	GENERATED_BODY()
 
+	FMinigamePlayer() : PlayerIndex(-1), Score(-20.f)
+	{};
+
 	FMinigamePlayer(int32 ControllerIndex, float PlayerScore)
 		: PlayerIndex(ControllerIndex), Score(PlayerScore)
-	{
-
-	};
+	{};
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 PlayerIndex {-1};

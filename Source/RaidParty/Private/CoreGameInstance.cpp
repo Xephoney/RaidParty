@@ -17,20 +17,13 @@ TArray<FMinigamePlayerResult> UCoreGameInstance::SortResult(TArray<FMinigamePlay
 	int Skip = 0;
 	for(int i = 0; i < MinigameParticipants.Num(); i++)
 	{
-		if (i == MinigameParticipants.Num() - 1)
-		{
-			result.Add(FMinigamePlayerResult(MinigameParticipants[i].PlayerIndex, currentRank - Skip, 0));
-			break;
-		}
-
 		result.Add(FMinigamePlayerResult(MinigameParticipants[i].PlayerIndex, currentRank - Skip, 0));
 		currentRank++;
-		if(MinigameParticipants[i].Score == MinigameParticipants[i+1].Score)
-		{
+		if(i != MinigameParticipants.Num() - 1 && MinigameParticipants[i].Score == MinigameParticipants[i+1].Score)
 			Skip++;
-			continue;
-		}
-		Skip = 0;
+		else
+			Skip = 0;
 	}
+	MinigameResult = result;
 	return result;
 }
