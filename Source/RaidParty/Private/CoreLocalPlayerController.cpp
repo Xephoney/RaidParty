@@ -40,7 +40,7 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	
 	ArrivedAtSpace(space);
 	
-	if(MyRoll == 0)
+	if(MyRoll <= 0)
 	{
 		bIsMyTurn = false;
 		myPawn->PawnFinishedMove();
@@ -56,25 +56,6 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	
 	if(space->bHaltPlayerOnPass)
 	{
-		/*
-		switch (space->Type)
-		{
-		case SPACETYPE::NORMAL: 
-			ContinueMovement();
-			break;
-		case SPACETYPE::BAD: 
-			ContinueMovement();
-			break;
-		case SPACETYPE::EVENT: 
-			break;
-		case SPACETYPE::SHRINE: 
-			break;
-		case SPACETYPE::KEEP: 
-			break;
-		default: ;
-		}
-		*/
-
 		PlayerHalted(space->Type);
 		return;
 	}
@@ -233,6 +214,7 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 		CurrentPathIndex = 0;
 	};
 	ConfirmStack.Add(SelectedPathLogic);
+	SelectedPathLogic();
 	return;
 }
 
