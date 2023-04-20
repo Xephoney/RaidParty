@@ -50,7 +50,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		float BraveryPercentage = 5.f; // How big of a chance that the AI will keep it's hand in the mouth when a bit might happen.
 	UPROPERTY(BlueprintReadOnly)
-		float MaxReactionTime = 1.f; // The maximum amount of time it takes for the AI to decide if it will keep it's hand in the mouth.
+		float MaxReactionTime = 0.5f; // The maximum amount of time it takes for the AI to decide if it will keep it's hand in the mouth.
 
 	UFUNCTION(BlueprintCallable)
 		void BraveryCheck();
