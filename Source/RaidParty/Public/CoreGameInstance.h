@@ -68,10 +68,10 @@ public:
 	UPROPERTY(BlueprintReadWrite);
 	int TurnLimit = 15;
 
-	UPROPERTY(BlueprintReadWrite);
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite);
 	int Players = 4;
 
-	UPROPERTY(BlueprintReadWrite);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite);
 	int Computers = 0;
 
 	UPROPERTY(BlueprintAssignable);

@@ -133,6 +133,9 @@ protected:
 
 	void CancelActivated();
 
+	UFUNCTION(BlueprintCallable)
+	void Initialize(ABoardPawn* BoardPawn);
+
 	void ActivatePathSelect(const ABoardSpace& space);
 	// Input-bound Functions
 	UFUNCTION()

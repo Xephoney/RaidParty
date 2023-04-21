@@ -40,14 +40,7 @@ void ABoardPawn::Tick(float DeltaTime)
 		Distance = 0;
 		//PawnFinishedMove();
 		PawnArrivedAtNewSpace();
-		if(IsValid(PlayerController))
-		{
-			PlayerController->PawnArrived(BoardSpace);
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(12455125, 2.f, FColor::Red, FString("Invalid PlayerController!!"));
-		}
+		OnPawnArrivedAtNewSpace.ExecuteIfBound(BoardSpace);
 	}
 
 }
