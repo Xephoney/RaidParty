@@ -28,7 +28,13 @@ protected:
 	UMaterialInstance* PawnMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FLinearColor> Colors{ FLinearColor::Red, FLinearColor::Blue, FLinearColor::Green, FLinearColor::Yellow };
+	TArray<FLinearColor> Colors
+		{
+			FLinearColor::Red,
+			FLinearColor::Blue,
+			FLinearColor::Green,
+			FLinearColor::Yellow
+		};
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bIsMoving{ false };
@@ -42,10 +48,8 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	class USplineComponent* CurrentSpline {nullptr};
 
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MovementSpeed = 400;
-
 
 public:
 	UPROPERTY(BlueprintReadOnly)
