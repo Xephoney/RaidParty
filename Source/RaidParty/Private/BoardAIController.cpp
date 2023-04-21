@@ -58,12 +58,16 @@ void ABoardAIController::ContinueMovement()
 
 void ABoardAIController::ActivatePathSelect(const ABoardSpace& space)
 {
+
 }
 
 void ABoardAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	State = GetPlayerState<ABoardPlayerState>();
+	if (!State)
+		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
+
 }
 
 void ABoardAIController::Tick(float DeltaSeconds)
@@ -82,4 +86,9 @@ void ABoardAIController::Tick(float DeltaSeconds)
 	
 		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Purple, DebugLog);
 	};
+}
+
+void ABoardAIController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
 }

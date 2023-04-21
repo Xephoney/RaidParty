@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "BoardPawn.generated.h"
 
+
 UCLASS()
 class RAIDPARTY_API ABoardPawn : public APawn
 {
@@ -55,10 +56,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	class ACoreLocalPlayerController* PlayerController{ nullptr };
-	// Called every frame
+	
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -67,6 +67,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FLinearColor SetColorLinear(const FLinearColor& color);
 
+	TDelegate<void(ABoardSpace*)> OnPawnArrivedAtNewSpace;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PawnFinishedMove();
@@ -84,6 +85,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void HidePaths();
 
+// SELECTING SHRINE EVENTS
 	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayShrineOptions();
 
@@ -92,7 +94,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void HideShrineOptions();
-
 
 	UFUNCTION(BlueprintCallable)
 	void Move(int index = 0);

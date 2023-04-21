@@ -39,13 +39,13 @@ public:
 	void EndTurn();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void FinishedMoving(SPACETYPE Type);
+	void FinishedMoving(SPACETYPE Type);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void ArrivedAtSpace(class ABoardSpace* space);
+	void ArrivedAtSpace(class ABoardSpace* space);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void PlayerHalted(SPACETYPE Type);
+	void PlayerHalted(SPACETYPE Type);
 
 	
 
@@ -59,7 +59,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	
+	virtual void OnPossess(APawn* InPawn) override;
 
 
 	UPROPERTY(BlueprintReadWrite)

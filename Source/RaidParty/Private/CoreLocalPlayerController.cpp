@@ -22,7 +22,7 @@ void ACoreLocalPlayerController::BeginPlay()
 	Super::BeginPlay();
 	SetShowMouseCursor(true);
 	State = GetPlayerState<ABoardPlayerState>();
-	if(!PlayerState)
+	if(!State)
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
 	
 }
@@ -187,6 +187,12 @@ void ACoreLocalPlayerController::CancelActivated()
 	}
 }
 
+void ACoreLocalPlayerController::Initialize(ABoardPawn* BoardPawn)
+{
+	BoardPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
+	myPawn = BoardPawn;
+}
+
 void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 {
 	bSelectingPaths = true;
@@ -214,8 +220,6 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 		CurrentPathIndex = 0;
 	};
 	ConfirmStack.Add(SelectedPathLogic);
-	SelectedPathLogic();
-	return;
 }
 
 void ACoreLocalPlayerController::BeginTurn(ABoardTurnCharacter* incharacter)
