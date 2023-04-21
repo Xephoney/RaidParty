@@ -2,13 +2,14 @@
 
 
 #include "BoardPlayerState.h"
+#include "BoardPawn.h"
+#include "BoardTurnCharacter.h"
 
 void ABoardPlayerState::UpdateState()
 {
 	if(oldCoins != Coins)
 	{
 		OnCoinsChanged.Broadcast();
-		GEngine->AddOnScreenDebugMessage(55, 0.5f, FColor::Purple, FString("COINS CHANGED"));
 		oldCoins = Coins;
 	}
 	if(oldKeeps != Keeps)
@@ -41,4 +42,19 @@ void ABoardPlayerState::UpdateState()
 		OnColorChanged.Broadcast();
 		oldColor = Color;
 	}
+
+	if(MyRoll != OldRoll)
+	{
+		OnMyRollChanged.Broadcast();
+		OldRoll = MyRoll;
+	}
+}
+
+void ABoardPlayerState::BeginTurn(ABoardTurnCharacter* inCharacter)
+{
+	TurnCharacter = inCharacter;
+	bIsMyTurn = true;
+	TurnCharacter->FollowTarget = myPawn;
+	TurnCharacter->bFreeCameraMode = false;
+	BeginTurnDelegate.ExecuteIfBound();
 }

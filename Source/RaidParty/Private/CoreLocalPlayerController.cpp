@@ -10,7 +10,7 @@
 #include "EnhancedInput/Public/InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
-#include "DrawDebugHelpers.h"
+
 
 ACoreLocalPlayerController::ACoreLocalPlayerController()
 {
@@ -24,7 +24,8 @@ void ACoreLocalPlayerController::BeginPlay()
 	State = GetPlayerState<ABoardPlayerState>();
 	if(!State)
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
-	
+
+	State->bAI = false;
 }
 
 //Gets called from BoardPawn when it arrives at the new space
@@ -35,15 +36,15 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 	{
 		GEngine->AddOnScreenDebugMessage(0132042105, 10.f, FColor::Red, FString("INVALID SPACE!!"));
 	}
-	MyRoll--;
+	State->MyRoll--;
 	State->BoardIndex = space->UniqueIndex;
 	
 	ArrivedAtSpace(space);
 	
-	if(MyRoll <= 0)
+	if(State->MyRoll <= 0)
 	{
-		bIsMyTurn = false;
-		myPawn->PawnFinishedMove();
+		State->bIsMyTurn = false;
+		State->myPawn->PawnFinishedMove();
 		FinishedMoving(space->Type);
 		return; 
 	}
@@ -59,14 +60,17 @@ void ACoreLocalPlayerController::PawnArrived(ABoardSpace* space)
 		PlayerHalted(space->Type);
 		return;
 	}
-	myPawn->Move();
+	State->myPawn->Move();
 
 }
 
 void ACoreLocalPlayerController::ContinueMovement()
 {
-	if (MyRoll > 0)
-		myPawn->Move();
+	if (State->MyRoll > 0)
+	{
+		State->myPawn->Move();
+		State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
+	}
 	else
 		EndTurn();
 }
@@ -120,26 +124,26 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 		State->UpdateState();
 	}
 
-	if(bIsMyTurn)
+	if(State->bIsMyTurn)
 	{
-		FString DebugLog = "PlayerController Debug Info(" + FString::FromInt(PlayerIndex) + ") \n";
-		DebugLog += "| Select Paths  | " + FString::Printf(TEXT("%s\n"), bSelectingPaths ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Select Shrine | " + FString::Printf(TEXT("%s\n"), bSelectingShrine ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Rolled        | " + FString::Printf(TEXT("%s\n"), bRolled ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Rolling       | " + FString::Printf(TEXT("%s\n"), bRolling ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Roll Mode     | " + FString::Printf(TEXT("%s\n"), bRollMode ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Camera Mode   | " + FString::Printf(TEXT("%s\n"), bCameraMode ? TEXT("true") : TEXT("false"));
+		FString DebugLog = "PlayerController Debug Info(" + FString::FromInt(State->PlayerIndex) + ") \n";
+		DebugLog += "| Select Paths  | " + FString::Printf(TEXT("%s\n"), State->bSelectingPaths ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Select Shrine | " + FString::Printf(TEXT("%s\n"), State->bSelectingShrine ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolled        | " + FString::Printf(TEXT("%s\n"), State->bRolled ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolling       | " + FString::Printf(TEXT("%s\n"), State->bRolling ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Roll Mode     | " + FString::Printf(TEXT("%s\n"), State->bRollMode ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Camera Mode   | " + FString::Printf(TEXT("%s\n"), State->bCameraMode ? TEXT("true") : TEXT("false"));
 		DebugLog += "| Confirm Stack | [" + FString::FromInt(ConfirmStack.Num()) + "]\n";
 		DebugLog += "| Decline Stack | [" + FString::FromInt(DeclineStack.Num()) + "]\n";
-		if (bSelectingPaths || bSelectingShrine)
+		if (State->bSelectingPaths || State->bSelectingShrine)
 			DebugLog += "| Current Index/Max Index " + FString::FromInt(CurrentPathIndex) + " / " + FString::FromInt(MaxPathIndex);
 
 		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Purple, DebugLog);
 
 		elapsed += DeltaSeconds;
-		if(bRolling && elapsed > 0.05f)
+		if(State->bRolling && elapsed > 0.05f)
 		{
-			MyRoll = FMath::RandRange(1, 10);
+			State->MyRoll = FMath::RandRange(1, 10);
 			UpdateRoll();
 			elapsed = 0;
 		}
@@ -148,26 +152,28 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 
 void ACoreLocalPlayerController::RollDiceBegin()
 {
-	if (bRolled || !bIsMyTurn || !bRollMode)
+	if (State->bRolled || !State->bIsMyTurn || !State->bRollMode)
 		return;
 
-	bRolling = true;
-	bRollMode = true;
-	MyRoll = FMath::RandRange(1, 10);
+	State->bRolling = true;
+	State->bRollMode = true;
+	State->MyRoll = FMath::RandRange(1, 10);
 	UpdateRoll();
 }
 
 void ACoreLocalPlayerController::RollDice()
 {
-	bRolled = true;
-	bRolling = false;
+	State->bRolled = true;
+	State->bRolling = false;
+	State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
 	UpdateRoll();
-	if(myPawn->BoardSpace->HasMultiplePaths(1))
+	if(State->myPawn->BoardSpace->HasMultiplePaths(1))
 	{
-		ActivatePathSelect(*myPawn->BoardSpace);
+		ActivatePathSelect(*State->myPawn->BoardSpace);
 		return;
 	}
-	myPawn->Move();
+	State->myPawn->Move();
+	
 }
 
 void ACoreLocalPlayerController::CancelActivated()
@@ -178,26 +184,20 @@ void ACoreLocalPlayerController::CancelActivated()
 		DeclineStack.RemoveAt(0);
 	}
 
-	if (bRollMode)
-		bRollMode = false;
-	if (bCameraMode)
+	if (State->bRollMode)
+		State->bRollMode = false;
+	if (State->bCameraMode)
 	{
-		bCameraMode = false;
-		TurnCharacter->bFreeCameraMode = false;
+		State->bCameraMode = false;
+		State->TurnCharacter->bFreeCameraMode = false;
 	}
-}
-
-void ACoreLocalPlayerController::Initialize(ABoardPawn* BoardPawn)
-{
-	BoardPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
-	myPawn = BoardPawn;
 }
 
 void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 {
-	bSelectingPaths = true;
-	bSelectingShrine = false;
-	myPawn->DisplayPaths(MyRoll);
+	State->bSelectingPaths = true;
+	State->bSelectingShrine = false;
+	State->myPawn->DisplayPaths(State->MyRoll);
 	CurrentPathIndex = 0;
 	MaxPathIndex = space.NextTiles.Num()-1;
 
@@ -207,39 +207,30 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 		FVector dir = _space->GetActorLocation() - space.GetActorLocation();
 		dir.Z = 0;
 		dir.Normalize();
-		PathDirections.Add(FVector2D{dir.X, dir.Y});	
+		PathDirections.Add(FVector2D{dir.X, dir.Y});
 	}
 
 	// Logic when A is Pressed to accept path
 	const TFunction<void()> SelectedPathLogic = [this]()
 	{
-		bSelectingPaths = false;
-		myPawn->HidePaths();
-		myPawn->Move(CurrentPathIndex);
-		GEngine->AddOnScreenDebugMessage(590482094, 5.f, FColor::Red, FString("Confirmed PATH"));
+		State->bSelectingPaths = false;
+		State->myPawn->HidePaths();
+		State->myPawn->Move(CurrentPathIndex);
 		CurrentPathIndex = 0;
 	};
 	ConfirmStack.Add(SelectedPathLogic);
 }
 
-void ACoreLocalPlayerController::BeginTurn(ABoardTurnCharacter* incharacter)
-{
-	TurnCharacter = incharacter;
-	bIsMyTurn = true;
-	Possess(incharacter);
-	TurnCharacter->FollowTarget = myPawn;
-	TurnCharacter->bFreeCameraMode = false;
-}
 
 void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 {
-	if (!bIsMyTurn)
+	if (!State->bIsMyTurn)
 		return;
 	const bool Clicked = Value.Get<bool>();
 
-	if(!bRolled && Clicked && !bRollMode)
+	if(!State->bRolled && Clicked && !State->bRollMode)
 	{
-		bRollMode = true;
+		State->bRollMode = true;
 		return;
 	}
 
@@ -252,13 +243,13 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 
 void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 {
-	if(bIsMyTurn && !bRolled && bRolling )
+	if(State->bIsMyTurn && !State->bRolled && State->bRolling )
 	{
-		bRolling = false;
-		bRollMode = false;
-		bCameraMode = false;
-		TurnCharacter->bFreeCameraMode = bCameraMode;
-		bRolled = true;
+		State->bRolling = false;
+		State->bRollMode = false;
+		State->bCameraMode = false;
+		State->TurnCharacter->bFreeCameraMode = State->bCameraMode;
+		State->bRolled = true;
 		UpdateRoll();
 		RollDice();
 	}
@@ -266,24 +257,24 @@ void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 
 void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value)
 {
-	if(bIsMyTurn && !bSelectingShrine && Value.Get<bool>() == true)
+	if(State->bIsMyTurn && !State->bSelectingShrine && Value.Get<bool>() == true)
 	{
-		bCameraMode = !bCameraMode;
-		TurnCharacter->bFreeCameraMode = bCameraMode;
+		State->bCameraMode = !State->bCameraMode;
+		State->TurnCharacter->bFreeCameraMode = State->bCameraMode;
 	}
 }
 
 void ACoreLocalPlayerController::SelectPathHorizontal(const FInputActionValue& Value)
 {
-	if(!bIsMyTurn)
+	if(!State->bIsMyTurn)
 		return;
 
-	if (bSelectingPaths)
+	if (State->bSelectingPaths)
 	{
 		SelectPathFromDirection(FVector2D(0, Value.Get<float>()));
 		return;
 	}
-	if(bSelectingShrine)
+	if(State->bSelectingShrine)
 	{
 		SelectShrineFromDirection(FVector2D(Value.Get<float>(), 0));
 		return;
@@ -293,30 +284,30 @@ void ACoreLocalPlayerController::SelectPathHorizontal(const FInputActionValue& V
 
 void ACoreLocalPlayerController::SelectPathVertical(const FInputActionValue& Value)
 {
-	if (!bIsMyTurn)
+	if (!State->bIsMyTurn)
 		return;
-	if(bSelectingPaths)
+	if(State->bSelectingPaths)
 		SelectPathFromDirection(FVector2D(Value.Get<float>(), 0));
 
 }
 
 void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 {
-	if (!bIsMyTurn || !IsValid(TurnCharacter))
+	if (!State->bIsMyTurn || !IsValid(State->TurnCharacter))
 		return;
 
 	const FVector2D input = Value.Get<FVector2D>();
 	
-	if (bCameraMode && input.Size() > 0.f)
-		TurnCharacter->MoveCamera(input);
+	if (State->bCameraMode && input.Size() > 0.f)
+		State->TurnCharacter->MoveCamera(input);
 
-	else if (bSelectingPaths && input.Size() > 0.2f)
+	else if (State->bSelectingPaths && input.Size() > 0.2f)
 	{
 		FVector2D normalizedInput = FVector2D(input.Y, input.X);
 		normalizedInput = normalizedInput.GetSafeNormal();
 		SelectPathFromDirection(normalizedInput);
 	}
-	else if (bSelectingShrine && input.Size() > 0.2f)
+	else if (State->bSelectingShrine && input.Size() > 0.2f)
 	{
 		FVector2D normalizedInput = FVector2D(input.X, input.Y);
 		normalizedInput = normalizedInput.GetSafeNormal();
@@ -327,7 +318,7 @@ void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 void ACoreLocalPlayerController::SelectPathFromDirection(FVector2D Direction)
 {
 	Direction.Normalize();
-	Direction = Direction.GetRotated(TurnCharacter->GetActorRotation().Euler().Z);
+	Direction = Direction.GetRotated(State->TurnCharacter->GetActorRotation().Euler().Z);
 	TArray<float> dotProducts;
 	int BestIndex = 0;
 	float BestDot = -1.f;
@@ -344,7 +335,7 @@ void ACoreLocalPlayerController::SelectPathFromDirection(FVector2D Direction)
 	if (CurrentPathIndex != BestIndex)
 	{
 		CurrentPathIndex = BestIndex;
-		myPawn->UpdatePaths(CurrentPathIndex);
+		State->myPawn->UpdatePaths(CurrentPathIndex);
 	}
 }
 
@@ -359,23 +350,23 @@ void ACoreLocalPlayerController::SelectShrineFromDirection(FVector2D Direction)
 		CurrentPathIndex -= 1;
 	}
 
-	myPawn->UpdateShrineOptions(CurrentPathIndex);
+	State->myPawn->UpdateShrineOptions(CurrentPathIndex);
 }
 
 void ACoreLocalPlayerController::StartSelectingShrineOptions()
 {
-	if (!bIsMyTurn)
+	if (!State->bIsMyTurn)
 		return;
 
-	bSelectingShrine = true;
+	State->bSelectingShrine = true;
 	CurrentPathIndex = 1;
 	MaxPathIndex = 2;
-	myPawn->DisplayShrineOptions();
+	State->myPawn->DisplayShrineOptions();
 
 	const TFunction<void()> ConfirmShrineLogic = [this]()
 	{
-		bSelectingShrine = false;
-		myPawn->HideShrineOptions();
+		State->bSelectingShrine = false;
+		State->myPawn->HideShrineOptions();
 		ContinueMovement();
 		State->Coins -= 5;
 		GEngine->AddOnScreenDebugMessage(590482094, 5.f, FColor::Red, FString("Confirmed SHRINE"));
@@ -384,8 +375,8 @@ void ACoreLocalPlayerController::StartSelectingShrineOptions()
 	};
 	const TFunction<void()> DeclineShrineLogic = [this]()
 	{
-		bSelectingShrine = false;
-		myPawn->HideShrineOptions();
+		State->bSelectingShrine = false;
+		State->myPawn->HideShrineOptions();
 		ContinueMovement();
 		GEngine->AddOnScreenDebugMessage(590482094, 5.f, FColor::Red, FString("Declined SHRINE"));
 		ConfirmStack.Empty();

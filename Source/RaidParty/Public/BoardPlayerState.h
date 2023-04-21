@@ -13,6 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTravellerPowerChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTraderPowerChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRankChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FColorChangedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMyRollChanged);
 
 
 /**
@@ -58,6 +59,40 @@ public:
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	int32 BoardIndex ;
 
+	//Controller Variables
+	UPROPERTY(BlueprintReadWrite)
+	int32 MyRoll;
+	int32 OldRoll;
+	UPROPERTY(BlueprintReadWrite)
+	int32 PlayerIndex{ -1 };
+
+	UPROPERTY(BlueprintReadWrite)
+	class ABoardPawn* myPawn;
+
+	UPROPERTY(BlueprintReadWrite)
+		class ABoardTurnCharacter* TurnCharacter{ nullptr };
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bRolled{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bRolling{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bIsMyTurn{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bSelectingPaths{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bSelectingShrine{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bRollMode{ false };
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bCameraMode{ false };
+
 
 	UPROPERTY(BlueprintAssignable)
 	FOnCoinsChangedDelegate OnCoinsChanged;
@@ -80,10 +115,16 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FRankChangedDelegate OnRankingChanged;
 
+	UPROPERTY(BlueprintAssignable)
+	FMyRollChanged OnMyRollChanged;
+	
+	// Call functions for Setting up and preparing players for their turn
+	UFUNCTION(BlueprintCallable)
+	void BeginTurn(class ABoardTurnCharacter* inCharacter);
 
-	/*FORCEINLINE bool operator>(const ABoardPlayerState& Other)
-	{
+	UPROPERTY(BlueprintReadWrite)
+	bool bAI = true;
 
-	}*/
-
+	TDelegate<void()> BeginTurnDelegate;
+	
 };

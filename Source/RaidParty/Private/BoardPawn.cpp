@@ -77,7 +77,7 @@ FLinearColor ABoardPawn::SetColorLinear(const FLinearColor& color)
 
 void ABoardPawn::Move(int index)
 {
-	if (bIsMoving)
+	if (bIsMoving || index >= BoardSpace->NextTiles.Num())
 		return;
 
 	bIsMoving = true;
