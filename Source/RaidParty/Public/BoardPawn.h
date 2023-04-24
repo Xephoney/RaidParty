@@ -12,6 +12,8 @@ class RAIDPARTY_API ABoardPawn : public APawn
 {
 	GENERATED_BODY()
 
+	float CurrentRotationLim_pitch = 0.f;
+	float CurrentRotationLim_roll = 0.f;
 
 public:
 	// Sets default values for this pawn's properties
@@ -44,6 +46,19 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	float SplineLength = 0;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* MovementCurve;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* RotationCurve;
+
+	UPROPERTY(EditAnywhere)
+	float HeightFactor = 200.f;
+
+	UPROPERTY(EditAnywhere)
+	FVector2D RotationMinMax {20.f, 110.f};
+
 
 	UPROPERTY(BlueprintReadWrite)
 	class USplineComponent* CurrentSpline {nullptr};
