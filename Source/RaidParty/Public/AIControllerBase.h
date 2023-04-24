@@ -18,22 +18,10 @@ public:
 		int Points=0;
 	UPROPERTY(BlueprintReadOnly)
 		int PlayerNum;
-public:
-	// Drinking Game //
-	UPROPERTY(BluePrintReadWrite)
-		TArray<EInputEnum>TargetInputQueue;
-	UPROPERTY(BluePrintReadOnly)
-		EInputEnum DirectionalInput=EInputEnum::IE_Up; // Same default as players
-	UPROPERTY(BlueprintReadWrite)
-		int InputIterator=0;
-	UPROPERTY(BlueprintReadOnly)
-		bool bLastInput = false;
 
-	UFUNCTION(BlueprintCallable)
-		void InputNextTarget();
-	UFUNCTION(BlueprintCallable)
-		void SetTargetInputQueue(TArray<EInputEnum> inArray) 
-			{ TargetInputQueue = inArray; }
+	AAIControllerBase();
+
+
+
 
 };
-

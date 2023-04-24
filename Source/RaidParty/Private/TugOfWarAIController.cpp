@@ -1,11 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AIControllerBase.h"
+#include "TugOfWarAIController.h"
 
-AAIControllerBase::AAIControllerBase()
+ATugOfWarAIController::ATugOfWarAIController()
 {
 	bWantsPlayerState = true;
 }
-
 
