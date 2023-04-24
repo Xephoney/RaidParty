@@ -108,4 +108,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TArray<FMinigamePlayerResult> SortResult(TArray<FMinigamePlayer> MinigameParticipants);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int RewardFromRank(int rank);
 };

@@ -53,7 +53,7 @@ void ABoardAIController::ContinueMovement()
 	if (State->MyRoll > 0)
 		State->myPawn->Move();
 	else
-		EndTurn();
+		State->EndTurn();
 
 }
 
@@ -61,7 +61,8 @@ void ABoardAIController::RollComplete()
 {
 	State->bRolled = true;
 	State->bRolling = false;
-	State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ABoardAIController::PawnArrived);
+	if (!State->myPawn->OnPawnArrivedAtNewSpace.IsBoundToObject(this))
+		State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ABoardAIController::PawnArrived);
 	UpdateRoll();
 	if(State->myPawn->BoardSpace->HasMultiplePaths(1))
 	{
@@ -82,12 +83,17 @@ void ABoardAIController::ActivatePathSelect(const ABoardSpace& space)
 
 void ABoardAIController::SelectNewPath()
 {
-	CurrentPathIndex = FMath::RandRange(0, MaxPathIndex - 1);
+	if (!State->bSelectingPaths)
+		return;
+	CurrentPathIndex = FMath::RandRange(0, MaxPathIndex);
 	State->myPawn->UpdatePaths(CurrentPathIndex);
 }
 
 void ABoardAIController::PathSelected()
 {
+	if (!State->bSelectingPaths)
+		return;
+
 	State->bSelectingPaths = false;
 	State->myPawn->HidePaths();
 	State->myPawn->Move(CurrentPathIndex);
@@ -100,9 +106,8 @@ void ABoardAIController::BeginPlay()
 	State = GetPlayerState<ABoardPlayerState>();
 	if (!State)
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
-	State->BeginTurnDelegate.BindUObject(this, &ABoardAIController::BeginTurn);
-	
 
+	State->BeginTurnDelegate.BindUObject(this, &ABoardAIController::BeginTurn);
 }
 
 void ABoardAIController::Tick(float DeltaSeconds)

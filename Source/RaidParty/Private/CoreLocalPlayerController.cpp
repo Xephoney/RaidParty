@@ -69,10 +69,11 @@ void ACoreLocalPlayerController::ContinueMovement()
 	if (State->MyRoll > 0)
 	{
 		State->myPawn->Move();
-		State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
+		if (!State->myPawn->OnPawnArrivedAtNewSpace.IsBoundToObject(this))
+			State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
 	}
 	else
-		EndTurn();
+		State->EndTurn();
 }
 
 void ACoreLocalPlayerController::OnPossess(APawn* aPawn)
@@ -165,7 +166,9 @@ void ACoreLocalPlayerController::RollDice()
 {
 	State->bRolled = true;
 	State->bRolling = false;
-	State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
+	if (!State->myPawn->OnPawnArrivedAtNewSpace.IsBoundToObject(this))
+		State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
+	
 	UpdateRoll();
 	if(State->myPawn->BoardSpace->HasMultiplePaths(1))
 	{
@@ -297,7 +300,7 @@ void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 		return;
 
 	const FVector2D input = Value.Get<FVector2D>();
-	
+
 	if (State->bCameraMode && input.Size() > 0.f)
 		State->TurnCharacter->MoveCamera(input);
 
@@ -307,10 +310,17 @@ void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 		normalizedInput = normalizedInput.GetSafeNormal();
 		SelectPathFromDirection(normalizedInput);
 	}
-	else if (State->bSelectingShrine && input.Size() > 0.2f)
+	else if (State->bSelectingShrine)
 	{
 		FVector2D normalizedInput = FVector2D(input.X, input.Y);
 		normalizedInput = normalizedInput.GetSafeNormal();
+		GEngine->AddOnScreenDebugMessage(05351345, 0.5f, FColor::Emerald, FString::Printf(TEXT("X : %.3f"), normalizedInput.X));
+		GEngine->AddOnScreenDebugMessage(05352345, 0.5f, FColor::Emerald, FString::Printf(TEXT("Y : %.3f"), normalizedInput.Y));
+		if (normalizedInput.X < 0.1f && normalizedInput.X > -0.1f && !bRightJoystickReset)
+		{
+			bRightJoystickReset = true;
+			GEngine->AddOnScreenDebugMessage(05351345, 0.5f, FColor::Emerald, FString("RightJoystick Reset"));
+		}
 		SelectShrineFromDirection(normalizedInput);
 	}
 }
@@ -341,16 +351,20 @@ void ACoreLocalPlayerController::SelectPathFromDirection(FVector2D Direction)
 
 void ACoreLocalPlayerController::SelectShrineFromDirection(FVector2D Direction)
 {
-	if (Direction.X > 0.1f && CurrentPathIndex < MaxPathIndex)
+	if(bRightJoystickReset)
 	{
-		CurrentPathIndex += 1;
-	}
-	else if( Direction.X < -0.1f && CurrentPathIndex > 0)
-	{
-		CurrentPathIndex -= 1;
-	}
+		if (Direction.X > 0.1f && CurrentPathIndex < MaxPathIndex)
+		{
+			CurrentPathIndex += 1;
+		}
+		else if( Direction.X < -0.1f && CurrentPathIndex > 0)
+		{
+			CurrentPathIndex -= 1;
+		}
 
-	State->myPawn->UpdateShrineOptions(CurrentPathIndex);
+		State->myPawn->UpdateShrineOptions(CurrentPathIndex);
+		bRightJoystickReset = false;
+	}
 }
 
 void ACoreLocalPlayerController::StartSelectingShrineOptions()

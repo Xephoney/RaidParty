@@ -6,14 +6,12 @@
 #include "GameFramework/PlayerState.h"
 #include "BoardPlayerState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCoinsChangedDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTricksterPowerChangedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCoinsChangedDelegate, int32, amount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnKeepsChangedDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTravellerPowerChangedDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTraderPowerChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRankChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FColorChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMyRollChanged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndTurnDelegate);
 
 
 /**
@@ -99,16 +97,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnKeepsChangedDelegate OnKeepsChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FTricksterPowerChangedDelegate OnTricksterChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FTravellerPowerChangedDelegate OnTravellerChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FTraderPowerChangedDelegate OnTraderChanged;
-
+	
 	UPROPERTY(BlueprintAssignable)
 	FColorChangedDelegate OnColorChanged;
 
@@ -122,9 +111,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BeginTurn(class ABoardTurnCharacter* inCharacter);
 
+	UFUNCTION(BlueprintCallable)
+	void EndTurn();
+
+
 	UPROPERTY(BlueprintReadWrite)
 	bool bAI = true;
 
 	TDelegate<void()> BeginTurnDelegate;
-	
+
+	UPROPERTY(BlueprintAssignable)
+	FEndTurnDelegate EndTurnDelegate;
 };

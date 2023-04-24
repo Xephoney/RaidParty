@@ -23,7 +23,7 @@ class RAIDPARTY_API ACoreLocalPlayerController : public APlayerController
 	int32 MaxPathIndex { 0 };
 	TArray<FVector2D> PathDirections;
 	float elapsed = 0.f;
-
+	bool bRightJoystickReset = false;
 public:
 	virtual void BeginPlay() override;
 
