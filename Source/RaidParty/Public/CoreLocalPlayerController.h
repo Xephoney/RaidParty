@@ -72,7 +72,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bWaitingForConfirmation{ false };
 
-	TArray<TFunction<void()>> ConfirmStack;
+	TArray<TFunction<void(int)>> ConfirmStack;
 	TArray<TFunction<void()>> DeclineStack;
 	
 	UFUNCTION(BlueprintImplementableEvent)

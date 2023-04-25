@@ -164,6 +164,8 @@ void ACoreLocalPlayerController::RollDiceBegin()
 
 void ACoreLocalPlayerController::RollDice()
 {
+	if (!State->bIsMyTurn)
+		return;
 	State->bRolled = true;
 	State->bRolling = false;
 	if (!State->myPawn->OnPawnArrivedAtNewSpace.IsBoundToObject(this))
@@ -181,6 +183,9 @@ void ACoreLocalPlayerController::RollDice()
 
 void ACoreLocalPlayerController::CancelActivated()
 {
+	if (!State->bIsMyTurn)
+		return;
+
 	if (DeclineStack.Num() > 0)
 	{
 		DeclineStack[0]();
@@ -214,11 +219,13 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 	}
 
 	// Logic when A is Pressed to accept path
-	const TFunction<void()> SelectedPathLogic = [&]()
+	const TFunction<void(int)> SelectedPathLogic = [this](int path)
 	{
 		State->bSelectingPaths = false;
+		State->bSelectingShrine = false;
 		State->myPawn->HidePaths();
-		State->myPawn->Move(CurrentPathIndex);
+		State->myPawn->Move(path);
+		GEngine->AddOnScreenDebugMessage(590482094, 5.f, FColor::Red, FString::Printf(TEXT("Confirmed path %i"), path));
 		CurrentPathIndex = 0;
 	};
 	ConfirmStack.Add(SelectedPathLogic);
@@ -239,7 +246,7 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 
 	if(Clicked && ConfirmStack.Num() > 0)
 	{
-		ConfirmStack[0]();
+		ConfirmStack[0](CurrentPathIndex);
 		ConfirmStack.Empty();
 	}
 }
@@ -377,7 +384,7 @@ void ACoreLocalPlayerController::StartSelectingShrineOptions()
 	MaxPathIndex = 2;
 	State->myPawn->DisplayShrineOptions();
 
-	const TFunction<void()> ConfirmShrineLogic = [&]()
+	const TFunction<void(int)> ConfirmShrineLogic = [&](int i)
 	{
 		State->bSelectingShrine = false;
 		State->myPawn->HideShrineOptions();
