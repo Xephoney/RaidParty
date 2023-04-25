@@ -184,7 +184,7 @@ void ACoreLocalPlayerController::CancelActivated()
 	if (DeclineStack.Num() > 0)
 	{
 		DeclineStack[0]();
-		DeclineStack.RemoveAt(0);
+		DeclineStack.Empty();
 	}
 
 	if (State->bRollMode)
@@ -214,7 +214,7 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 	}
 
 	// Logic when A is Pressed to accept path
-	const TFunction<void()> SelectedPathLogic = [this]()
+	const TFunction<void()> SelectedPathLogic = [&]()
 	{
 		State->bSelectingPaths = false;
 		State->myPawn->HidePaths();
@@ -313,10 +313,9 @@ void ACoreLocalPlayerController::JoystickInput(const FInputActionValue& Value)
 	else if (State->bSelectingShrine)
 	{
 		FVector2D normalizedInput = FVector2D(input.X, input.Y);
-		normalizedInput = normalizedInput.GetSafeNormal();
 		GEngine->AddOnScreenDebugMessage(05351345, 0.5f, FColor::Emerald, FString::Printf(TEXT("X : %.3f"), normalizedInput.X));
 		GEngine->AddOnScreenDebugMessage(05352345, 0.5f, FColor::Emerald, FString::Printf(TEXT("Y : %.3f"), normalizedInput.Y));
-		if (normalizedInput.X < 0.1f && normalizedInput.X > -0.1f && !bRightJoystickReset)
+		if (normalizedInput.X < 0.4f && normalizedInput.X > -0.4f && !bRightJoystickReset)
 		{
 			bRightJoystickReset = true;
 			GEngine->AddOnScreenDebugMessage(05351345, 0.5f, FColor::Emerald, FString("RightJoystick Reset"));
@@ -353,17 +352,18 @@ void ACoreLocalPlayerController::SelectShrineFromDirection(FVector2D Direction)
 {
 	if(bRightJoystickReset)
 	{
-		if (Direction.X > 0.1f && CurrentPathIndex < MaxPathIndex)
+		if (Direction.X > 0.2f && CurrentPathIndex < MaxPathIndex)
 		{
 			CurrentPathIndex += 1;
+			bRightJoystickReset = false;
+			State->myPawn->UpdateShrineOptions(CurrentPathIndex);
 		}
-		else if( Direction.X < -0.1f && CurrentPathIndex > 0)
+		else if( Direction.X < -0.2f && CurrentPathIndex > 0)
 		{
 			CurrentPathIndex -= 1;
+			bRightJoystickReset = false;
+			State->myPawn->UpdateShrineOptions(CurrentPathIndex);
 		}
-
-		State->myPawn->UpdateShrineOptions(CurrentPathIndex);
-		bRightJoystickReset = false;
 	}
 }
 
@@ -377,7 +377,7 @@ void ACoreLocalPlayerController::StartSelectingShrineOptions()
 	MaxPathIndex = 2;
 	State->myPawn->DisplayShrineOptions();
 
-	const TFunction<void()> ConfirmShrineLogic = [this]()
+	const TFunction<void()> ConfirmShrineLogic = [&]()
 	{
 		State->bSelectingShrine = false;
 		State->myPawn->HideShrineOptions();
@@ -387,7 +387,7 @@ void ACoreLocalPlayerController::StartSelectingShrineOptions()
 		ConfirmStack.Empty();
 		DeclineStack.Empty();
 	};
-	const TFunction<void()> DeclineShrineLogic = [this]()
+	const TFunction<void()> DeclineShrineLogic = [&]()
 	{
 		State->bSelectingShrine = false;
 		State->myPawn->HideShrineOptions();
