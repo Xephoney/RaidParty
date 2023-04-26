@@ -6,11 +6,14 @@
 #include "GameFramework/Pawn.h"
 #include "BoardPawn.generated.h"
 
+
 UCLASS()
 class RAIDPARTY_API ABoardPawn : public APawn
 {
 	GENERATED_BODY()
 
+	float CurrentRotationLim_pitch = 0.f;
+	float CurrentRotationLim_roll = 0.f;
 
 public:
 	// Sets default values for this pawn's properties
@@ -27,7 +30,13 @@ protected:
 	UMaterialInstance* PawnMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FLinearColor> Colors{ FLinearColor::Red, FLinearColor::Blue, FLinearColor::Green, FLinearColor::Yellow };
+	TArray<FLinearColor> Colors
+		{
+			FLinearColor::Red,
+			FLinearColor::Blue,
+			FLinearColor::Green,
+			FLinearColor::Yellow
+		};
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bIsMoving{ false };
@@ -38,13 +47,24 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	float SplineLength = 0;
 
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* MovementCurve;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* RotationCurve;
+
+	UPROPERTY(EditAnywhere)
+	float HeightFactor = 200.f;
+
+	UPROPERTY(EditAnywhere)
+	FVector2D RotationMinMax {20.f, 110.f};
+
+
 	UPROPERTY(BlueprintReadWrite)
 	class USplineComponent* CurrentSpline {nullptr};
 
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MovementSpeed = 400;
-
 
 public:
 	UPROPERTY(BlueprintReadOnly)
@@ -55,10 +75,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	class ACoreLocalPlayerController* PlayerController{ nullptr };
-	// Called every frame
+	
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -67,6 +86,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FLinearColor SetColorLinear(const FLinearColor& color);
 
+	TDelegate<void(ABoardSpace*)> OnPawnArrivedAtNewSpace;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PawnFinishedMove();
@@ -84,6 +104,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void HidePaths();
 
+// SELECTING SHRINE EVENTS
 	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayShrineOptions();
 
@@ -92,7 +113,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void HideShrineOptions();
-
 
 	UFUNCTION(BlueprintCallable)
 	void Move(int index = 0);

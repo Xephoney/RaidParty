@@ -2,34 +2,20 @@
 
 
 #include "BoardPlayerState.h"
+#include "BoardPawn.h"
+#include "BoardTurnCharacter.h"
 
 void ABoardPlayerState::UpdateState()
 {
 	if(oldCoins != Coins)
 	{
-		OnCoinsChanged.Broadcast();
-		GEngine->AddOnScreenDebugMessage(55, 0.5f, FColor::Purple, FString("COINS CHANGED"));
+		OnCoinsChanged.Broadcast(Coins - oldCoins);
 		oldCoins = Coins;
 	}
 	if(oldKeeps != Keeps)
 	{
 		OnKeepsChanged.Broadcast();
 		oldKeeps = Keeps;
-	}
-	if(oldTrickster != TricksterShrinePower)
-	{
-		OnTricksterChanged.Broadcast();
-		oldTrickster = TricksterShrinePower;
-	}
-	if (oldTraveller != TravellerShrinePower)
-	{
-		OnTravellerChanged.Broadcast();
-		oldTraveller = TravellerShrinePower;
-	}
-	if (oldTrader != TraderShrinePower)
-	{
-		OnTraderChanged.Broadcast();
-		oldTrader = TraderShrinePower;
 	}
 	if(oldRanking != Ranking)
 	{
@@ -41,4 +27,37 @@ void ABoardPlayerState::UpdateState()
 		OnColorChanged.Broadcast();
 		oldColor = Color;
 	}
+
+	if(MyRoll != OldRoll)
+	{
+		OnMyRollChanged.Broadcast();
+		OldRoll = MyRoll;
+	}
+}
+
+void ABoardPlayerState::BeginTurn(ABoardTurnCharacter* inCharacter)
+{
+	TurnCharacter = inCharacter;
+	bIsMyTurn = true;
+	bRollMode = false;
+	bRolling = false;
+	bSelectingPaths = false;
+	bSelectingShrine = false;
+	bCameraMode = false;
+	TurnCharacter->FollowTarget = myPawn;
+	TurnCharacter->bFreeCameraMode = false;
+	BeginTurnDelegate.ExecuteIfBound();
+}
+
+void ABoardPlayerState::EndTurn()
+{
+	
+	bIsMyTurn = false;
+	bRollMode = false;
+	bRolling = false;
+	bSelectingPaths = false;
+	bSelectingShrine = false;
+	bCameraMode = false;
+	TurnCharacter->bFreeCameraMode = false;
+	EndTurnDelegate.Broadcast();
 }

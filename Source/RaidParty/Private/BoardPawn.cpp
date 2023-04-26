@@ -30,24 +30,25 @@ void ABoardPawn::Tick(float DeltaTime)
 	if (!bIsMoving || !CurrentSpline)
 		return;
 
-	SetActorLocation(CurrentSpline->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World));
-	SetActorRotation(CurrentSpline->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World));
-	
 	Distance += MovementSpeed * DeltaTime;
+	FVector newLocation = CurrentSpline->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
+	newLocation.Z =  MovementCurve->GetFloatValue(Distance/CurrentSpline->GetSplineLength()) * HeightFactor;
+	SetActorLocation(newLocation);
+
+	FRotator newRotation = CurrentSpline->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
+	newRotation = FRotator(	
+		RotationCurve->GetFloatValue(Distance / CurrentSpline->GetSplineLength()) * CurrentRotationLim_pitch,
+		CurrentSpline->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World).Euler().Z,
+		RotationCurve->GetFloatValue(Distance / CurrentSpline->GetSplineLength()) * CurrentRotationLim_roll);
+	SetActorRotation(newRotation);
+
 	if(Distance >= CurrentSpline->GetSplineLength())
 	{
 		bIsMoving = false;
 		Distance = 0;
 		//PawnFinishedMove();
 		PawnArrivedAtNewSpace();
-		if(IsValid(PlayerController))
-		{
-			PlayerController->PawnArrived(BoardSpace);
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(12455125, 2.f, FColor::Red, FString("Invalid PlayerController!!"));
-		}
+		OnPawnArrivedAtNewSpace.ExecuteIfBound(BoardSpace);
 	}
 
 }
@@ -84,11 +85,14 @@ FLinearColor ABoardPawn::SetColorLinear(const FLinearColor& color)
 
 void ABoardPawn::Move(int index)
 {
-	if (bIsMoving)
+	if (bIsMoving || index >= BoardSpace->NextTiles.Num())
 		return;
 
 	bIsMoving = true;
 	CurrentSpline = BoardSpace->GetPath(index);
 	BoardSpace = BoardSpace->NextTiles[index];
+
+	CurrentRotationLim_pitch = FMath::RandRange(-RotationMinMax.X, RotationMinMax.X);
+	CurrentRotationLim_roll = FMath::RandRange(-RotationMinMax.Y, RotationMinMax.Y);
 }
 
