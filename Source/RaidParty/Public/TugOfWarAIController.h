@@ -19,7 +19,7 @@ public:
 
 	// Tug-of-War //
 	UPROPERTY(BlueprintReadOnly)
-		float MaxInputDelay = 0.1f;
+		float MaxInputDelay = 0.5f;
 	UPROPERTY(BlueprintReadOnly)
 		int NumberOfPresses = 0;
 
