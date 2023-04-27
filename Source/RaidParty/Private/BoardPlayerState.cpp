@@ -9,11 +9,13 @@ void ABoardPlayerState::UpdateState()
 {
 	if(oldCoins != Coins)
 	{
+		Coins = FMath::Clamp(Coins, 0, 250);
 		OnCoinsChanged.Broadcast(Coins - oldCoins);
 		oldCoins = Coins;
 	}
 	if(oldKeeps != Keeps)
 	{
+		Keeps = FMath::Clamp(Keeps, 0, 250);
 		OnKeepsChanged.Broadcast();
 		oldKeeps = Keeps;
 	}
@@ -30,6 +32,7 @@ void ABoardPlayerState::UpdateState()
 
 	if(MyRoll != OldRoll)
 	{
+		MyRoll = FMath::Clamp(MyRoll, 0, 250);
 		OnMyRollChanged.Broadcast();
 		OldRoll = MyRoll;
 	}
