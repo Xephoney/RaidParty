@@ -49,12 +49,12 @@ void ABoardPlayerState::BeginTurn(ABoardTurnCharacter* inCharacter)
 	bCameraMode = false;
 	TurnCharacter->FollowTarget = myPawn;
 	TurnCharacter->bFreeCameraMode = false;
-	BeginTurnDelegate.ExecuteIfBound();
+	BeginTurnDelegate.Broadcast(PlayerIndex);
 }
 
 void ABoardPlayerState::EndTurn()
 {
-	
+	EndTurnDelegate.Broadcast(PlayerIndex);
 	bIsMyTurn = false;
 	bRollMode = false;
 	bRolling = false;
@@ -62,5 +62,5 @@ void ABoardPlayerState::EndTurn()
 	bSelectingShrine = false;
 	bCameraMode = false;
 	TurnCharacter->bFreeCameraMode = false;
-	EndTurnDelegate.Broadcast();
+	
 }

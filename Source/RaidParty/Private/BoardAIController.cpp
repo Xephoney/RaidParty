@@ -107,7 +107,7 @@ void ABoardAIController::BeginPlay()
 	if (!State)
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
 
-	State->BeginTurnDelegate.BindUObject(this, &ABoardAIController::BeginTurn);
+	State->BeginTurnDelegate.AddUniqueDynamic(this, &ABoardAIController::BeginTurn);
 }
 
 void ABoardAIController::Tick(float DeltaSeconds)

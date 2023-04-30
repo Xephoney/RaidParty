@@ -33,10 +33,10 @@ public:
 	void UpdateRoll();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BeginTurn();
+	void BeginTurn(int32 playerIndex);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void EndTurn();
+	void EndTurn(int32 playerIndex);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void FinishedMoving(SPACETYPE Type);

@@ -88,7 +88,11 @@ protected:
 	void UpdateRoll();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void EndTurn();
+	void BeginTurn(int32 PlayerIndex);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EndTurn(int32 PlayerIndex);
+
 
 	void RollDiceBegin();
 	void RollDice();

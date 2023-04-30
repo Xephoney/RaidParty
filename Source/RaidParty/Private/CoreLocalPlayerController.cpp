@@ -26,6 +26,8 @@ void ACoreLocalPlayerController::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
 
 	State->bAI = false;
+	State->BeginTurnDelegate.AddUniqueDynamic(this, &ACoreLocalPlayerController::BeginTurn);
+	//State->EndTurnDelegate.AddUniqueDynamic(this, &ACoreLocalPlayerController::EndTurn);
 }
 
 //Gets called from BoardPawn when it arrives at the new space
