@@ -129,6 +129,7 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 
 	if(State->bIsMyTurn)
 	{
+		/*
 		FString DebugLog = "PlayerController Debug Info(" + FString::FromInt(State->PlayerIndex) + ") \n";
 		DebugLog += "| Select Paths  | " + FString::Printf(TEXT("%s\n"), State->bSelectingPaths ? TEXT("true") : TEXT("false"));
 		DebugLog += "| Select Shrine | " + FString::Printf(TEXT("%s\n"), State->bSelectingShrine ? TEXT("true") : TEXT("false"));
@@ -142,6 +143,7 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 			DebugLog += "| Current Index/Max Index " + FString::FromInt(CurrentPathIndex) + " / " + FString::FromInt(MaxPathIndex);
 
 		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Purple, DebugLog);
+		*/
 
 		elapsed += DeltaSeconds;
 		if(State->bRolling && elapsed > 0.05f)
