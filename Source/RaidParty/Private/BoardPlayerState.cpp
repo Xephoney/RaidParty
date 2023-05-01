@@ -9,11 +9,13 @@ void ABoardPlayerState::UpdateState()
 {
 	if(oldCoins != Coins)
 	{
+		Coins = FMath::Clamp(Coins, 0, 250);
 		OnCoinsChanged.Broadcast(Coins - oldCoins);
 		oldCoins = Coins;
 	}
 	if(oldKeeps != Keeps)
 	{
+		Keeps = FMath::Clamp(Keeps, 0, 250);
 		OnKeepsChanged.Broadcast();
 		oldKeeps = Keeps;
 	}
@@ -30,6 +32,7 @@ void ABoardPlayerState::UpdateState()
 
 	if(MyRoll != OldRoll)
 	{
+		MyRoll = FMath::Clamp(MyRoll, 0, 250);
 		OnMyRollChanged.Broadcast();
 		OldRoll = MyRoll;
 	}
@@ -46,12 +49,12 @@ void ABoardPlayerState::BeginTurn(ABoardTurnCharacter* inCharacter)
 	bCameraMode = false;
 	TurnCharacter->FollowTarget = myPawn;
 	TurnCharacter->bFreeCameraMode = false;
-	BeginTurnDelegate.ExecuteIfBound();
+	BeginTurnDelegate.Broadcast(PlayerIndex);
 }
 
 void ABoardPlayerState::EndTurn()
 {
-	
+	EndTurnDelegate.Broadcast(PlayerIndex);
 	bIsMyTurn = false;
 	bRollMode = false;
 	bRolling = false;
@@ -59,5 +62,5 @@ void ABoardPlayerState::EndTurn()
 	bSelectingShrine = false;
 	bCameraMode = false;
 	TurnCharacter->bFreeCameraMode = false;
-	EndTurnDelegate.Broadcast();
+	
 }

@@ -72,7 +72,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bWaitingForConfirmation{ false };
 
-	TArray<TFunction<void()>> ConfirmStack;
+	TArray<TFunction<void(int)>> ConfirmStack;
 	TArray<TFunction<void()>> DeclineStack;
 	
 	UFUNCTION(BlueprintImplementableEvent)
@@ -88,7 +88,11 @@ protected:
 	void UpdateRoll();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void EndTurn();
+	void BeginTurn(int32 PlayerIndex);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EndTurn(int32 PlayerIndex);
+
 
 	void RollDiceBegin();
 	void RollDice();

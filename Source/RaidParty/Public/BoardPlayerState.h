@@ -10,8 +10,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCoinsChangedDelegate, int32, amou
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnKeepsChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRankChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FColorChangedDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMyRollChanged);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndTurnDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMyRollChanged)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerEndTurn, int32, PlayerIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBeginTurn, int32, PlayerIndex);
 
 
 /**
@@ -27,24 +28,12 @@ public:
 	float dt;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	uint8 Coins {10};
-	uint8 oldCoins = 0;
+	int32 Coins {10};
+	int32 oldCoins = 0;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	uint8 Keeps{ 0 };
 	uint8 oldKeeps = 5;
-
-	UPROPERTY(BlueprintReadWrite, SaveGame)
-	uint8 TricksterShrinePower {0};
-	uint8 oldTrickster = 5;
-
-	UPROPERTY(BlueprintReadWrite, SaveGame)
-	uint8 TravellerShrinePower {0};
-	uint8 oldTraveller = 5;
-
-	UPROPERTY(BlueprintReadWrite, SaveGame)
-	uint8 TraderShrinePower {0	};
-	uint8 oldTrader = 5;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	FLinearColor Color{1,1,1,1};
@@ -114,12 +103,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void EndTurn();
 
-
 	UPROPERTY(BlueprintReadWrite)
 	bool bAI = true;
 
-	TDelegate<void()> BeginTurnDelegate;
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerBeginTurn BeginTurnDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FEndTurnDelegate EndTurnDelegate;
+	FOnPlayerEndTurn EndTurnDelegate;
 };
