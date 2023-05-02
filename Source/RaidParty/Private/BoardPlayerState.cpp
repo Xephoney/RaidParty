@@ -58,9 +58,10 @@ void ABoardPlayerState::BeginPlay()
 		});*/
 
 	TurnStartEffects.Add([](ABoardPlayerState& state) -> int32
-		{
-			state.Coins += 2;
-		});
+	{
+		state.Coins += 2;
+		return 2;
+	});
 }
 
 int32 ABoardPlayerState::RollDice()
