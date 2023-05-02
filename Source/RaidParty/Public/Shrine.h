@@ -7,32 +7,37 @@
 #include "Shrine.generated.h"
 
 UENUM(BlueprintType)
-enum class ShrineEffects : uint8
+enum class ShrineEffectType : uint8
 {
-	None = 0					UMETA(DisplayName = "None"),
-	AddToRoll = 1				UMETA(DisplayName = "Add To Roll"),
-	MultiplyCoinReward = 2		UMETA(DisplayName = "Coin Multiplier"),
-	EveryTimeYouRollX = 3		UMETA(DisplayName = "Everytime you Roll X"),
-	MoveBackwards = 4			UMETA(DisplayName = "Next time you move backwards")
+	None = 0						UMETA(DisplayName = "None"),
+	EffectOnRoll = 1				UMETA(DisplayName = "Modfiy Roll"),
+	EffectOnCoinsChanged = 2		UMETA(DisplayName = "Modify Coins"),
+	EffectOnMovement = 3			UMETA(DisplayName = "Modify Movement"),
+	EffectOnBeginTurn = 4			UMETA(DisplayName = "Modify Begin Turn"),
+	EffectOnEndTurn = 5				UMETA(DisplayName = "Modify End Turn")
 };
 
 
-struct ShrineEffect
+struct ShrineEffect 
 {
-	ShrineEffect()
-	:	EffectName("NULL"),
-		EffectDescription("NULL DESCRIPTION")
+	ShrineEffect(FString Name, FString Description, FString God, ShrineEffectType type, int32 EffectArrayIndex)
+		: EffectName(Name), EffectDescription(Description), EffectGodRelation(God), EffectType(type), EffectIndex(EffectIndex)
 	{
 		
 	}
-	FString EffectName;
-	FString EffectDescription;
-	void InvokeEffect();
+	FString EffectName{ "" };
+	FString EffectDescription {""};
+	FString EffectGodRelation{ "none" };
+
+	ShrineEffectType EffectType{ ShrineEffectType::None };
+
+	int32 EffectIndex = -1;
 };
 
 
 DECLARE_MULTICAST_DELEGATE(FOnScoreChangedSignature);
 
+static TArray<ShrineEffect> ShrineEffects;
 
 UCLASS()
 class RAIDPARTY_API AShrine : public AActor
@@ -50,13 +55,18 @@ protected:
 	void SetupShrineFunctions();
 
 	
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	TMulticastDelegate<void(AShrine*)> OnShrineBought;
+
+	UPROPERTY(BlueprintReadWrite)
 	int32 OwnerPlayerStateIndex;
 
 
-	ShrineEffect ActiveEffect;
+	ShrineEffect* ActiveEffect {nullptr};
+
+	UFUNCTION(BlueprintCallable)
+	void UnlinkShrine();
 };

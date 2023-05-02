@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void EndTurn(int32 playerIndex);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void FinishedMoving(SPACETYPE Type);
 
 	UFUNCTION(BlueprintImplementableEvent)

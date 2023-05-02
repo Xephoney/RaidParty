@@ -6,7 +6,9 @@
 #include "GameFramework/PlayerState.h"
 #include "BoardPlayerState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCoinsChangedDelegate, int32, amount);
+//typedef TArray<int> RollMods;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDiceRolled, int32, PlayerRollOriginal, const TArray<int32>&, Modifications);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCoinsChanged, int32, Original, int32, Delta);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnKeepsChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRankChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FColorChangedDelegate);
@@ -25,6 +27,12 @@ class RAIDPARTY_API ABoardPlayerState : public APlayerState
 public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateState();
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	int32 RollDice();
+
 	float dt;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
@@ -70,19 +78,17 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bSelectingPaths{ false };
-
-	UPROPERTY(BlueprintReadWrite)
-		bool bSelectingShrine{ false };
-
 	UPROPERTY(BlueprintReadWrite)
 		bool bRollMode{ false };
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bCameraMode{ false };
 
+	UPROPERTY(BlueprintReadWrite)
+		bool bPostRollPreMove{ false };
 
 	UPROPERTY(BlueprintAssignable)
-	FOnCoinsChangedDelegate OnCoinsChanged;
+		FOnCoinsChanged OnCoinsChanged;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnKeepsChangedDelegate OnKeepsChanged;
@@ -111,4 +117,18 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerEndTurn EndTurnDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDiceRolled OnDiceRolledDelegate;
+
+
+
+
+
+	// Effect Arrays
+
+	// On Dice Roll
+	TArray<TFunction<int(ABoardPlayerState&)>> DiceRollEffects;
+
+	TArray<TFunction<int(ABoardPlayerState&)>> TurnStartEffects;
 };

@@ -20,20 +20,21 @@ void AShrine::BeginPlay()
 
 void AShrine::SetupShrineFunctions()
 {
-	const TFunction<void()> OnTurnBeginAddCoinsLinked
-	{
 
-	};
-	const TFunction<void()> OnTurnBeginAddCoinsInvoked
-	{
-
-	};
 }
 
 // Called every frame
 void AShrine::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+
+void AShrine::UnlinkShrine()
+{
+	if (!ActiveEffect)
+		return;
+
 
 }
 

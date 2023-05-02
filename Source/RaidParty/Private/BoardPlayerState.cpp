@@ -10,7 +10,7 @@ void ABoardPlayerState::UpdateState()
 	if(oldCoins != Coins)
 	{
 		Coins = FMath::Clamp(Coins, 0, 250);
-		OnCoinsChanged.Broadcast(Coins - oldCoins);
+		OnCoinsChanged.Broadcast(oldCoins, Coins - oldCoins);
 		oldCoins = Coins;
 	}
 	if(oldKeeps != Keeps)
@@ -38,29 +38,87 @@ void ABoardPlayerState::UpdateState()
 	}
 }
 
+void ABoardPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+	//DEBUG EFFECT ADDED
+	/*DiceRollEffects.Add([](ABoardPlayerState& state) -> int32
+		{
+			const int valuePreEffect = state.MyRoll;
+			state.MyRoll = FMath::DivideAndRoundDown(state.MyRoll, 2);
+			const int Mod = state.MyRoll - valuePreEffect;
+			return Mod;
+		});
+	DiceRollEffects.Add([](ABoardPlayerState& state) -> int32
+		{
+			const int valuePreEffect = state.MyRoll;
+			state.MyRoll = state.MyRoll + 2;
+			const int Mod = state.MyRoll - valuePreEffect;
+			return Mod;
+		});*/
+
+	TurnStartEffects.Add([](ABoardPlayerState& state) -> int32
+		{
+			state.Coins += 2;
+		});
+}
+
+int32 ABoardPlayerState::RollDice()
+{
+	bRolled = true;
+	bRolling = false;
+	bPostRollPreMove = true;
+	if(DiceRollEffects.Num() > 0)
+	{
+		TArray<int> mods;
+		for (auto effect : DiceRollEffects)
+		{
+			mods.Add(effect(*this));
+		}
+		OnDiceRolledDelegate.Broadcast(OldRoll, mods);
+		
+		return mods.Num();
+	}
+
+	OnDiceRolledDelegate.Broadcast(OldRoll, {});
+
+	
+	return 0;
+}
+
 void ABoardPlayerState::BeginTurn(ABoardTurnCharacter* inCharacter)
 {
 	TurnCharacter = inCharacter;
-	bIsMyTurn = true;
-	bRollMode = false;
-	bRolling = false;
-	bSelectingPaths = false;
-	bSelectingShrine = false;
-	bCameraMode = false;
 	TurnCharacter->FollowTarget = myPawn;
 	TurnCharacter->bFreeCameraMode = false;
+	bSelectingPaths = false;
+	bCameraMode = false;
+	bRollMode = false;
+	bRolling = false;
+
+	bPostRollPreMove = true;
+	bIsMyTurn = true;
+	if(TurnStartEffects.Num() > 0)
+	{
+		for (auto Func : TurnStartEffects)
+		{
+			Func(*this);
+		}
+	}
+	
 	BeginTurnDelegate.Broadcast(PlayerIndex);
-}
+} 
 
 void ABoardPlayerState::EndTurn()
 {
 	EndTurnDelegate.Broadcast(PlayerIndex);
+	TurnCharacter->bFreeCameraMode = false;
+	bSelectingPaths = false;
+	bCameraMode = false;
 	bIsMyTurn = false;
 	bRollMode = false;
 	bRolling = false;
-	bSelectingPaths = false;
-	bSelectingShrine = false;
-	bCameraMode = false;
-	TurnCharacter->bFreeCameraMode = false;
+
+	bPostRollPreMove = true;
 	
 }

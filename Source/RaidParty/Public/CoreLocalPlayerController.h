@@ -85,7 +85,8 @@ protected:
 	void PlayerHalted(SPACETYPE Type);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateRoll();
+	void PlayerRolledDice();
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BeginTurn(int32 PlayerIndex);
@@ -96,6 +97,10 @@ protected:
 
 	void RollDiceBegin();
 	void RollDice();
+
+
+	UFUNCTION(BlueprintCallable)
+	void RollDiceComplete();
 
 	void CancelActivated();
 
@@ -118,9 +123,9 @@ protected:
 	void JoystickInput(const FInputActionValue& Value);
 
 	void SelectPathFromDirection(FVector2D Direction);
-	void SelectShrineFromDirection(FVector2D Direction);
-	UFUNCTION(BlueprintCallable)
-	void StartSelectingShrineOptions();
+	//void SelectShrineFromDirection(FVector2D Direction);
+	/*UFUNCTION(BlueprintCallable)
+	void StartSelectingShrineOptions();*/
 
 };
 
