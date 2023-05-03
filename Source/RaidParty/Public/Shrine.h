@@ -45,28 +45,32 @@ class RAIDPARTY_API AShrine : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AShrine();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UFUNCTION(BlueprintCallable)
-	void SetupShrineFunctions();
-
-	
+		
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	TMulticastDelegate<void(AShrine*)> OnShrineBought;
 
 	UPROPERTY(BlueprintReadWrite)
-	int32 OwnerPlayerStateIndex;
+	int ShrineIndex;
 
+	UPROPERTY(BlueprintReadWrite)
+	int OwnerIndex = -1;
 
-	ShrineEffect* ActiveEffect {nullptr};
+	UPROPERTY(BlueprintReadWrite)
+	int EffectIndex = -1;;
+
+	virtual void Tick(float DeltaTime) override;
+
+	TFunction<int(class ABoardPlayerState&)> ActiveEffect;
+	UFUNCTION(BlueprintCallable)
+	void LinkToPlayer(ABoardPlayerState* state, int32 eIndex);
 
 	UFUNCTION(BlueprintCallable)
 	void UnlinkShrine();
+
+	UPROPERTY(BlueprintReadWrite)
+	class ABoardPlayerState* LinkedState;
 };

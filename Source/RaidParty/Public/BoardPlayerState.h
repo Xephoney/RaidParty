@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 RollDice();
 
+	UFUNCTION(BlueprintCallable)
+		void SetCoins(int32 newCoinsBalance);
+
 	float dt;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
@@ -121,14 +124,25 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDiceRolled OnDiceRolledDelegate;
 
+	void AddEffect(int EffectIndex, int shrineIndex);
+
+	void RemoveEffect(int EffectIndex, int shrineIndex);
 
 
-
+	TArray<std::tuple<int32, int32, int32>> ShrineEffectLinkArray;
 
 	// Effect Arrays
 
 	// On Dice Roll
 	TArray<TFunction<int(ABoardPlayerState&)>> DiceRollEffects;
 
+	// When the turn starts
 	TArray<TFunction<int(ABoardPlayerState&)>> TurnStartEffects;
+
+	// When the turn ends
+	TArray<TFunction<int(ABoardPlayerState&)>> TurnEndEffects;
+
+	// Coins Change effects
+	TArray<TFunction<int(ABoardPlayerState&)>> CoinsChangedEffects;
+
 };

@@ -3,6 +3,8 @@
 
 #include "Shrine.h"
 
+#include "BoardPlayerState.h"
+
 // Sets default values
 AShrine::AShrine()
 {
@@ -15,13 +17,9 @@ AShrine::AShrine()
 void AShrine::BeginPlay()
 {
 	Super::BeginPlay();
-	SetupShrineFunctions();
-}
-
-void AShrine::SetupShrineFunctions()
-{
 
 }
+
 
 // Called every frame
 void AShrine::Tick(float DeltaTime)
@@ -30,11 +28,23 @@ void AShrine::Tick(float DeltaTime)
 
 }
 
+void AShrine::LinkToPlayer(ABoardPlayerState* state, int32 eIndex)
+{
+	if (!state)
+		return;
+	EffectIndex = eIndex;
+	LinkedState = state;
+	state->AddEffect(eIndex, ShrineIndex);
+}
+
 void AShrine::UnlinkShrine()
 {
-	if (!ActiveEffect)
+	if (!LinkedState)
 		return;
 
-
+	LinkedState->RemoveEffect(EffectIndex, ShrineIndex);
+	EffectIndex = -1;
+	OwnerIndex = -1;
+	LinkedState = nullptr;
 }
 
