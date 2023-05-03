@@ -29,7 +29,6 @@ void ABoardAIController::PawnArrived(ABoardSpace* space)
 		
 		State->myPawn->PawnFinishedMove();
 		FinishedMoving(space->Type);
-		State->bIsMyTurn = false;
 		return;
 	}
 
@@ -59,23 +58,30 @@ void ABoardAIController::ContinueMovement()
 
 void ABoardAIController::RollComplete()
 {
-	State->bRolled = true;
-	State->bRolling = false;
+	if (!State->bIsMyTurn)
+		return;
+
+	if(State->MyRoll <= 0)
+	{
+		PawnArrived(State->myPawn->BoardSpace);
+	}
+
 	if (!State->myPawn->OnPawnArrivedAtNewSpace.IsBoundToObject(this))
 		State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ABoardAIController::PawnArrived);
-	UpdateRoll();
+	//UpdateRoll();
+	State->bPostRollPreMove = false;
 	if(State->myPawn->BoardSpace->HasMultiplePaths(1))
 	{
 		ActivatePathSelect(*State->myPawn->BoardSpace);
 		return;
 	}
-	State->myPawn->Move();
+	ContinueMovement();
+	
 }
 
 void ABoardAIController::ActivatePathSelect(const ABoardSpace& space)
 {
 	State->bSelectingPaths = true;
-	State->bSelectingShrine = false;
 	State->myPawn->DisplayPaths(State->MyRoll);
 	MaxPathIndex = space.NextTiles.Num() - 1;
 	CurrentPathIndex = FMath::RandRange(0, MaxPathIndex - 1);
@@ -108,34 +114,41 @@ void ABoardAIController::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
 
 	State->BeginTurnDelegate.AddUniqueDynamic(this, &ABoardAIController::BeginTurn);
+
 }
 
 void ABoardAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (State->bIsMyTurn)
+	{
+		FString DebugLog;
+		DebugLog += "| Has Rolled?      | " + FString::Printf(TEXT("%s\n"), State->bRolled ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolled           | " + FString::Printf(TEXT("%s\n"), State->bRolled ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Rolling          | " + FString::Printf(TEXT("%s\n"), State->bRolling ? TEXT("true") : TEXT("false"));
+		DebugLog += "| Roll Mode        | " + FString::Printf(TEXT("%s\n"), State->bRollMode ? TEXT("true") : TEXT("false"));
+		DebugLog += "| PostRollPreMove  | " + FString::Printf(TEXT("%s\n"), State->bPostRollPreMove ? TEXT("true") : TEXT("false"));
+		DebugLog += "| MyRoll           | " + FString::FromInt(State->MyRoll) + "\n";
+		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
+		if (State->bRolling)
+		{
+			elapsed += DeltaSeconds;
+			if (elapsed > 0.09f)
+			{
+				State->MyRoll = FMath::RandRange(1, 10);
+				//UpdateRoll();
+				timeSpentRolling += elapsed;
+				elapsed = 0;
+			}
+		}
+	};
+
 	if (IsValid(State))
 	{
 		State->dt = DeltaSeconds;
 		State->UpdateState();
 	}
-	if (State->bIsMyTurn)
-	{
-		FString DebugLog;
-		DebugLog += "| Is it my turn?   | " + FString::Printf(TEXT("%s\n"), State->bIsMyTurn ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Selecting Paths  | " + FString::Printf(TEXT("%s\n"), State->bSelectingPaths ? TEXT("true") : TEXT("false"));
-		DebugLog += "| Has Rolled?      | " + FString::Printf(TEXT("%s\n"), State->bRolled ? TEXT("true") : TEXT("false"));
-		DebugLog += "| MyRoll           | " + FString::FromInt(State->MyRoll) + "\n";
-		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
-
-		elapsed += DeltaSeconds;
-		if (State->bRolling && elapsed > 0.05f)
-		{
-			State->MyRoll = FMath::RandRange(1, 10);
-			UpdateRoll();
-			timeSpentRolling += elapsed;
-			elapsed = 0;
-		}
-	};
 }
 
 void ABoardAIController::OnPossess(APawn* InPawn)

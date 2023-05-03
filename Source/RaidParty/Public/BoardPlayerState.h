@@ -6,7 +6,9 @@
 #include "GameFramework/PlayerState.h"
 #include "BoardPlayerState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCoinsChangedDelegate, int32, amount);
+//typedef TArray<int> RollMods;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDiceRolled, int32, PlayerRollOriginal, const TArray<int32>&, Modifications);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCoinsChanged, int32, Original, int32, Delta);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnKeepsChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRankChangedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FColorChangedDelegate);
@@ -25,6 +27,15 @@ class RAIDPARTY_API ABoardPlayerState : public APlayerState
 public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateState();
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	int32 RollDice();
+
+	UFUNCTION(BlueprintCallable)
+		void SetCoins(int32 newCoinsBalance);
+
 	float dt;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
@@ -70,19 +81,17 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bSelectingPaths{ false };
-
-	UPROPERTY(BlueprintReadWrite)
-		bool bSelectingShrine{ false };
-
 	UPROPERTY(BlueprintReadWrite)
 		bool bRollMode{ false };
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bCameraMode{ false };
 
+	UPROPERTY(BlueprintReadWrite)
+		bool bPostRollPreMove{ false };
 
 	UPROPERTY(BlueprintAssignable)
-	FOnCoinsChangedDelegate OnCoinsChanged;
+		FOnCoinsChanged OnCoinsChanged;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnKeepsChangedDelegate OnKeepsChanged;
@@ -111,4 +120,29 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerEndTurn EndTurnDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDiceRolled OnDiceRolledDelegate;
+
+	void AddEffect(int EffectIndex, int shrineIndex);
+
+	void RemoveEffect(int EffectIndex, int shrineIndex);
+
+
+	TArray<std::tuple<int32, int32, int32>> ShrineEffectLinkArray;
+
+	// Effect Arrays
+
+	// On Dice Roll
+	TArray<TFunction<int(ABoardPlayerState&)>> DiceRollEffects;
+
+	// When the turn starts
+	TArray<TFunction<int(ABoardPlayerState&)>> TurnStartEffects;
+
+	// When the turn ends
+	TArray<TFunction<int(ABoardPlayerState&)>> TurnEndEffects;
+
+	// Coins Change effects
+	TArray<TFunction<int(ABoardPlayerState&)>> CoinsChangedEffects;
+
 };

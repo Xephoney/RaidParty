@@ -105,6 +105,7 @@ public:
 	void HidePaths();
 
 // SELECTING SHRINE EVENTS
+	/*
 	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayShrineOptions();
 
@@ -113,6 +114,11 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void HideShrineOptions();
+	*/
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void EnterShrineMode();
+
 
 	UFUNCTION(BlueprintCallable)
 	void Move(int index = 0);
