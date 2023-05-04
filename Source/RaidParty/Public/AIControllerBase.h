@@ -14,7 +14,7 @@ class RAIDPARTY_API AAIControllerBase : public AAIController
 
 public:
 	// General		//
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 		int Points=0;
 	UPROPERTY(BlueprintReadOnly)
 		int PlayerNum;
