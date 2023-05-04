@@ -130,7 +130,7 @@ void ABoardAIController::Tick(float DeltaSeconds)
 		DebugLog += "| Roll Mode        | " + FString::Printf(TEXT("%s\n"), State->bRollMode ? TEXT("true") : TEXT("false"));
 		DebugLog += "| PostRollPreMove  | " + FString::Printf(TEXT("%s\n"), State->bPostRollPreMove ? TEXT("true") : TEXT("false"));
 		DebugLog += "| MyRoll           | " + FString::FromInt(State->MyRoll) + "\n";
-		GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
+		//GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
 		if (State->bRolling)
 		{
 			elapsed += DeltaSeconds;
