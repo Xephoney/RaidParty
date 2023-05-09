@@ -20,8 +20,7 @@ ACoreLocalPlayerController::ACoreLocalPlayerController()
 void ACoreLocalPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	Super::BeginPlay();
-	SetShowMouseCursor(true);
+	//SetShowMouseCursor(true);
 	State = GetPlayerState<ABoardPlayerState>();
 	if(!State)
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));
