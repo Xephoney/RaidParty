@@ -72,6 +72,12 @@ void ACoreLocalPlayerController::ContinueMovement()
 		State->myPawn->Move();
 		if (!State->myPawn->OnPawnArrivedAtNewSpace.IsBoundToObject(this))
 			State->myPawn->OnPawnArrivedAtNewSpace.BindUObject(this, &ACoreLocalPlayerController::PawnArrived);
+
+		if(State->bCameraMode)
+		{
+			State->bCameraMode = false;
+			State->TurnCharacter->bFreeCameraMode = false;
+		}
 	}
 	else
 		State->EndTurn();
@@ -232,6 +238,11 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 		State->bSelectingPaths = false;
 		State->myPawn->HidePaths();
 		State->myPawn->Move(path);
+		if (State->bCameraMode)
+		{
+			State->TurnCharacter->bFreeCameraMode = false;
+			State->bCameraMode = false;
+		}
 		CurrentPathIndex = 0;
 	};
 	ConfirmStack.Add(SelectedPathLogic);
@@ -276,6 +287,8 @@ void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value
 	{
 		State->bCameraMode = !State->bCameraMode;
 		State->TurnCharacter->bFreeCameraMode = State->bCameraMode;
+		if (State->bRollMode && !State->bRolled)
+			State->bRollMode = false;
 	}
 }
 
