@@ -32,14 +32,15 @@ void ABoardPawn::Tick(float DeltaTime)
 
 	Distance += MovementSpeed * DeltaTime;
 	FVector newLocation = CurrentSpline->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
-	newLocation.Z =  MovementCurve->GetFloatValue(Distance/CurrentSpline->GetSplineLength()) * HeightFactor;
+	SplineMovedPercent = Distance / CurrentSpline->GetSplineLength();
+	newLocation.Z =  MovementCurve->GetFloatValue(SplineMovedPercent) * HeightFactor;
 	SetActorLocation(newLocation);
 
 	FRotator newRotation = CurrentSpline->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
 	newRotation = FRotator(	
-		RotationCurve->GetFloatValue(Distance / CurrentSpline->GetSplineLength()) * CurrentRotationLim_pitch,
+		RotationCurve->GetFloatValue(SplineMovedPercent) * CurrentRotationLim_pitch,
 		CurrentSpline->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World).Euler().Z,
-		RotationCurve->GetFloatValue(Distance / CurrentSpline->GetSplineLength()) * CurrentRotationLim_roll);
+		RotationCurve->GetFloatValue(SplineMovedPercent) * CurrentRotationLim_roll);
 	SetActorRotation(newRotation);
 
 	if(Distance >= CurrentSpline->GetSplineLength())

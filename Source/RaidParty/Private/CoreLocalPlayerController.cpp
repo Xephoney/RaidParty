@@ -257,6 +257,11 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 
 	if(!State->bRolled && Clicked && !State->bRollMode)
 	{
+		if (State->bCameraMode)
+		{
+			State->bCameraMode = false;
+			State->TurnCharacter->bFreeCameraMode = false;
+		}
 		State->bRollMode = true;
 		return;
 	}
@@ -270,7 +275,7 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 
 void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 {
-	if(State->bIsMyTurn && !State->bRolled && State->bRolling )
+	if(State->bIsMyTurn && !State->bRolled && State->bRolling && !State->bCameraMode)
 	{
 		State->bRolling = false;
 		State->bRollMode = false;
@@ -283,7 +288,7 @@ void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 
 void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value)
 {
-	if(State->bIsMyTurn && Value.Get<bool>() == true)
+	if(State->bIsMyTurn && Value.Get<bool>() == true && !State->bRollMode)
 	{
 		State->bCameraMode = !State->bCameraMode;
 		State->TurnCharacter->bFreeCameraMode = State->bCameraMode;

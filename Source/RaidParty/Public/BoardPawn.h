@@ -12,8 +12,8 @@ class RAIDPARTY_API ABoardPawn : public APawn
 {
 	GENERATED_BODY()
 
-	float CurrentRotationLim_pitch = 0.f;
-	float CurrentRotationLim_roll = 0.f;
+
+	
 
 public:
 	// Sets default values for this pawn's properties
@@ -22,6 +22,11 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CurrentRotationLim_pitch = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CurrentRotationLim_roll = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* PawnMesh{ nullptr };
@@ -47,16 +52,16 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	float SplineLength = 0;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UCurveFloat* MovementCurve;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UCurveFloat* RotationCurve;
 
 	UPROPERTY(EditAnywhere)
 	float HeightFactor = 200.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FVector2D RotationMinMax {20.f, 110.f};
 
 
@@ -65,6 +70,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MovementSpeed = 400;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		float SplineMovedPercent = 0;
 
 public:
 	UPROPERTY(BlueprintReadOnly)
