@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Laget av Hans Ola Hoftun
+// Denne klassen blir ikke aktivt brukt i spillet, og blir derfor utelatt når spillet bygge
 #pragma once
 
 #include "CoreMinimal.h"

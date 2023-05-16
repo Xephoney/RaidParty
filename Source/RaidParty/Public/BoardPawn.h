@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Laget av Hans Ola Hoftun
 
 #pragma once
 
@@ -12,11 +12,7 @@ class RAIDPARTY_API ABoardPawn : public APawn
 {
 	GENERATED_BODY()
 
-
-	
-
 public:
-	// Sets default values for this pawn's properties
 	ABoardPawn();
 
 protected:

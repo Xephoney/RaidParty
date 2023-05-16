@@ -1,21 +1,18 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Laget av Hans Ola Hoftun
 
 
 #include "BoardSpace.h"
 #include "Components/SplineComponent.h"
 
-// Sets default values
+
 ABoardSpace::ABoardSpace()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpaceMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = SpaceMesh;
-	//UpdatePaths();
 }
 
-// Called when the game starts or when spawned
 void ABoardSpace::BeginPlay()
 {
 	Super::BeginPlay();
@@ -48,7 +45,7 @@ int ABoardSpace::AddPreviousSpace(ABoardSpace* previousSpace)
 	return index;
 }
 
-// Called every frame
+
 void ABoardSpace::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

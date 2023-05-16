@@ -24,11 +24,11 @@ class RAIDPARTY_API ABoardSpace : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
+
 	ABoardSpace();
 
 protected:
-	// Called when the game starts or when spawned
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)

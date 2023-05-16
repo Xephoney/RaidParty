@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Laget av Hans Ola Hoftun
 
 
 #include "CoreLocalPlayerController.h"
@@ -20,7 +20,6 @@ ACoreLocalPlayerController::ACoreLocalPlayerController()
 void ACoreLocalPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	//SetShowMouseCursor(true);
 	State = GetPlayerState<ABoardPlayerState>();
 	if(!State)
 		GEngine->AddOnScreenDebugMessage(53253, 10.f, FColor::Red, FString("FAILED TO GET PLAYER STATE"));

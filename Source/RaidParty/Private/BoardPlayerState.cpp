@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Laget av Hans Ola Hoftun
 
 
 #include "BoardPlayerState.h"
@@ -45,27 +45,6 @@ void ABoardPlayerState::UpdateState()
 void ABoardPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
-	//DEBUG EFFECT ADDED
-	/*DiceRollEffects.Add([](ABoardPlayerState& state) -> int32
-		{
-			const int valuePreEffect = state.MyRoll;
-			state.MyRoll = FMath::DivideAndRoundDown(state.MyRoll, 2);
-			const int Mod = state.MyRoll - valuePreEffect;
-			return Mod;
-		});
-	DiceRollEffects.Add([](ABoardPlayerState& state) -> int32
-		{
-			const int valuePreEffect = state.MyRoll;
-			state.MyRoll = state.MyRoll + 2;
-			const int Mod = state.MyRoll - valuePreEffect;
-			return Mod;
-		});*/
-
-	/*TurnStartEffects.Add([](ABoardPlayerState& state) -> int32
-	{
-		state.Coins += 2;
-		return 2;
-	});*/
 }
 
 int32 ABoardPlayerState::RollDice()
