@@ -46,6 +46,10 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bHaltPlayerOnPass{ false };
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bCustomSplineFlag{ false };
+
+
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TArray<ABoardSpace*> NextTiles;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -93,6 +97,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USplineComponent* GetPath(int index) const;
 
-
+	UFUNCTION(BlueprintCallable)
+	void SetTangents(TArray<FVector> StartTangents, TArray<FVector> EndTangents);
 
 };

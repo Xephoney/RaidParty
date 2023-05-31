@@ -227,3 +227,15 @@ USplineComponent* ABoardSpace::GetPath(int index) const
 	return nullptr;
 }
 
+void ABoardSpace::SetTangents(TArray<FVector> StartTangents, TArray<FVector> ArriveTangents)
+{
+	if (StartTangents.Num() != ArriveTangents.Num() || StartTangents.Num() > Paths.Num() || bCustomSplineFlag)
+	{
+		return;
+	}
+	for (int i = 0; i < Paths.Num(); i++)
+	{
+		Paths[i]->SetTangentAtSplinePoint(0, StartTangents[i], ESplineCoordinateSpace::World, true);
+		Paths[i]->SetTangentAtSplinePoint(1, ArriveTangents[i], ESplineCoordinateSpace::World, true);
+	}
+}
