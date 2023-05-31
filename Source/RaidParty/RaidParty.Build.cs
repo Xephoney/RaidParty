@@ -8,7 +8,7 @@ public class RaidParty : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "CommonUI", "CommonInput", "UMG", "GameplayTags" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "CommonUI", "CommonInput", "UMG", "GameplayTags", "AIModule" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
