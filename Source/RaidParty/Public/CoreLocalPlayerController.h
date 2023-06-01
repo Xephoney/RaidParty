@@ -94,15 +94,22 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void EndTurn(int32 PlayerIndex);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void RollDiceBeginBP();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void RollDiceCancelledBP();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void RollDiceContinuedBP();
 
 	void RollDiceBegin();
-	void RollDice();
-
 
 	UFUNCTION(BlueprintCallable)
 	void RollDiceComplete();
 
 	void CancelActivated();
+
 
 	void ActivatePathSelect(const ABoardSpace& space);
 	// Input-bound Functions
@@ -123,9 +130,6 @@ protected:
 	void JoystickInput(const FInputActionValue& Value);
 
 	void SelectPathFromDirection(FVector2D Direction);
-	//void SelectShrineFromDirection(FVector2D Direction);
-	/*UFUNCTION(BlueprintCallable)
-	void StartSelectingShrineOptions();*/
 
 };
 

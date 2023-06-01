@@ -148,6 +148,7 @@ void ACoreLocalPlayerController::Tick(float DeltaSeconds)
 			elapsed += DeltaSeconds;
 			if(elapsed > 0.09f)
 			{
+				RollDiceContinuedBP();
 				State->MyRoll = FMath::RandRange(1, 10);
 				//UpdateRoll();
 				elapsed = 0;
@@ -171,7 +172,8 @@ void ACoreLocalPlayerController::RollDiceBegin()
 	State->bRolling = true;
 	State->bRollMode = true;
 	State->MyRoll = FMath::RandRange(1, 10);
-	//UpdateRoll();
+	RollDiceBeginBP();
+
 }
 
 void ACoreLocalPlayerController::RollDiceComplete()
@@ -204,15 +206,26 @@ void ACoreLocalPlayerController::CancelActivated()
 	{
 		DeclineStack[0]();
 		DeclineStack.Empty();
+		return;
+	}
+
+	if(State->bRolling)
+	{
+		State->bRolling = false;
+		RollDiceCancelledBP();
 	}
 
 	if (State->bRollMode)
+	{
 		State->bRollMode = false;
+	}
+
 	if (State->bCameraMode)
 	{
 		State->bCameraMode = false;
 		State->TurnCharacter->bFreeCameraMode = false;
 	}
+	State->TurnCharacter->DefaultMode();
 }
 
 void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
@@ -261,6 +274,7 @@ void ACoreLocalPlayerController::Confirm(const FInputActionValue& Value)
 			State->bCameraMode = false;
 			State->TurnCharacter->bFreeCameraMode = false;
 		}
+		State->TurnCharacter->RollDiceModeActivated();
 		State->bRollMode = true;
 		return;
 	}
@@ -278,8 +292,10 @@ void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 	{
 		State->bRolling = false;
 		State->bRollMode = false;
+		
 		State->bCameraMode = false;
 		State->TurnCharacter->bFreeCameraMode = State->bCameraMode;
+		State->TurnCharacter->DefaultMode();
 		State->bRolled = true;
 		PlayerRolledDice();		
 	}
@@ -290,8 +306,15 @@ void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value
 	if(State->bIsMyTurn && Value.Get<bool>() == true && !State->bRollMode)
 	{
 		State->bCameraMode = !State->bCameraMode;
+
+		if (State->bCameraMode)
+			State->TurnCharacter->LookAroundMode();
+		else
+			State->TurnCharacter->DefaultMode();
+
 		State->TurnCharacter->bFreeCameraMode = State->bCameraMode;
-		if (State->bRollMode && !State->bRolled)
+
+		if (State->bRollMode && !State->bRolling)
 			State->bRollMode = false;
 	}
 }
