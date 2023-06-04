@@ -76,6 +76,7 @@ void ACoreLocalPlayerController::ContinueMovement()
 		{
 			State->bCameraMode = false;
 			State->TurnCharacter->bFreeCameraMode = false;
+			State->TurnCharacter->DefaultMode();
 		}
 	}
 	else
@@ -254,6 +255,7 @@ void ACoreLocalPlayerController::ActivatePathSelect(const ABoardSpace& space)
 		{
 			State->TurnCharacter->bFreeCameraMode = false;
 			State->bCameraMode = false;
+			State->TurnCharacter->DefaultMode();
 		}
 		CurrentPathIndex = 0;
 	};
@@ -303,9 +305,12 @@ void ACoreLocalPlayerController::ConfirmReleased(const FInputActionValue& Value)
 
 void ACoreLocalPlayerController::CameraModeToggle(const FInputActionValue& Value)
 {
-	if(State->bIsMyTurn && Value.Get<bool>() == true && !State->bRollMode)
+	if(State->bIsMyTurn && Value.Get<bool>() == true && !State->bRolling )
 	{
-		State->bCameraMode = !State->bCameraMode;
+		if (State->myPawn->IsMoving())
+			State->bCameraMode = false;
+		else
+			State->bCameraMode = !State->bCameraMode;
 
 		if (State->bCameraMode)
 			State->TurnCharacter->LookAroundMode();

@@ -212,10 +212,8 @@ bool ABoardSpace::HasMultiplePaths(int direction) const
 	{
 		return (NextTiles.Num() > 1);
 	}
-	else
-	{
-		return (PreviousTiles.Num() > 1);
-	}
+
+	return (PreviousTiles.Num() > 1);
 }
 
 USplineComponent* ABoardSpace::GetPath(int index) const

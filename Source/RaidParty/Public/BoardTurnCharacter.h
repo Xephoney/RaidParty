@@ -34,13 +34,13 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bFreeCameraMode = false;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void RollDiceModeActivated();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void RollDiceModeActivated();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void DefaultMode();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void DefaultMode();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void LookAroundMode();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void LookAroundMode();
 
 };

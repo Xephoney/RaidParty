@@ -108,6 +108,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void HidePaths();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsMoving() const { return bIsMoving; }
+
 // SELECTING SHRINE EVENTS
 	/*
 	UFUNCTION(BlueprintImplementableEvent)

@@ -5,6 +5,7 @@
 #include "BoardPawn.h"
 #include "BoardPlayerState.h"
 #include "BoardSpace.h"
+#include "BoardTurnCharacter.h"
 
 ABoardAIController::ABoardAIController()
 {
@@ -34,6 +35,7 @@ void ABoardAIController::PawnArrived(ABoardSpace* space)
 	if (space->HasMultiplePaths(1))
 	{
 		ActivatePathSelect(*space);
+		State->TurnCharacter->LookAroundMode();
 		return;
 	}
 
@@ -59,6 +61,8 @@ void ABoardAIController::RollComplete()
 {
 	if (!State->bIsMyTurn)
 		return;
+
+	State->TurnCharacter->DefaultMode();
 
 	if(State->MyRoll <= 0)
 	{
@@ -122,13 +126,13 @@ void ABoardAIController::Tick(float DeltaSeconds)
 
 	if (State->bIsMyTurn)
 	{
-		FString DebugLog;
+		/*FString DebugLog;
 		DebugLog += "| Has Rolled?      | " + FString::Printf(TEXT("%s\n"), State->bRolled ? TEXT("true") : TEXT("false"));
 		DebugLog += "| Rolled           | " + FString::Printf(TEXT("%s\n"), State->bRolled ? TEXT("true") : TEXT("false"));
 		DebugLog += "| Rolling          | " + FString::Printf(TEXT("%s\n"), State->bRolling ? TEXT("true") : TEXT("false"));
 		DebugLog += "| Roll Mode        | " + FString::Printf(TEXT("%s\n"), State->bRollMode ? TEXT("true") : TEXT("false"));
 		DebugLog += "| PostRollPreMove  | " + FString::Printf(TEXT("%s\n"), State->bPostRollPreMove ? TEXT("true") : TEXT("false"));
-		DebugLog += "| MyRoll           | " + FString::FromInt(State->MyRoll) + "\n";
+		DebugLog += "| MyRoll           | " + FString::FromInt(State->MyRoll) + "\n";*/
 		//GEngine->AddOnScreenDebugMessage(675946584, 0.5f, FColor::Emerald, DebugLog);
 		if (State->bRolling)
 		{
